@@ -1,0 +1,153 @@
+/* src/pages/NovoChamado.css */
+.nc-main { 
+    @apply 
+    flex-1 
+    w-full 
+    p-6 
+    overflow-y-auto 
+    flex 
+    justify-center 
+    items-start; 
+}
+
+
+.nc-container {
+    @apply
+    w-full
+    max-w-2xl 
+    mt-8;
+}
+
+.nc-header-wrap { 
+    @apply 
+    text-left 
+    space-y-1 
+    mb-8; 
+}
+
+.nc-title { 
+    @apply 
+    text-2xl 
+    font-bold 
+    tracking-tight 
+    text-slate-900; 
+}
+
+.nc-subtitle { 
+    @apply 
+    text-sm 
+    text-slate-500 
+    font-medium; 
+}
+
+.nc-card { 
+    @apply 
+    border 
+    border-slate-200 
+    shadow-sm 
+    rounded-xl 
+    bg-white 
+    overflow-hidden 
+    text-left; 
+}
+
+.nc-card-header { 
+    @apply 
+    bg-slate-50/50 
+    border-b 
+    border-slate-100 
+    pb-1; 
+}
+
+.nc-card-title { 
+    @apply 
+    text-lg 
+    text-slate-800; 
+}
+
+.nc-card-content { 
+    @apply 
+    p-6 
+    space-y-8; 
+}
+
+.nc-form { 
+    @apply 
+    space-y-8; 
+}
+
+.nc-section { 
+    @apply 
+    space-y-4; 
+}
+
+.nc-section-title { 
+    @apply 
+    text-xs 
+    font-semibold 
+    text-slate-500 
+    uppercase 
+    tracking-wider; 
+}
+
+.nc-separator { 
+    @apply 
+    bg-slate-100; 
+}
+
+.nc-grid { 
+    @apply 
+    grid 
+    grid-cols-1 
+    md:grid-cols-2 
+    gap-5; 
+}
+
+.nc-field { 
+    @apply 
+    space-y-2; 
+}
+
+.nc-field-full { 
+    @apply 
+    space-y-2 
+    md:col-span-2;
+}
+
+.nc-label { 
+    @apply 
+    text-sm 
+    font-semibold 
+    text-slate-700; 
+}
+
+.nc-input-readonly { 
+    @apply 
+    bg-slate-50; 
+}
+
+.nc-textarea { 
+    @apply 
+    min-h-[120px]; 
+}
+
+.nc-footer { 
+    @apply 
+    flex 
+    gap-3 
+    pt-4; 
+}
+
+.nc-btn-submit { 
+    @apply 
+    bg-[#f97316] 
+    hover:bg-[#ea580c] 
+    text-white; 
+}
+
+.nc-btn-icon { 
+    @apply 
+    w-4 
+    h-4 
+    mr-2; 
+}

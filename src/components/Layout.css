@@ -1,0 +1,201 @@
+/* src/components/Layout.css */
+
+.layout-root {
+  @apply 
+  min-h-screen 
+  bg-[#f8fafc] 
+  flex 
+  flex-col 
+  font-sans;
+}
+
+.layout-header {
+  @apply 
+  bg-blue-500
+  shrink-0;
+}
+
+.layout-header-inner {
+  @apply 
+  mx-auto 
+  max-w-[1400px] 
+  px-6 
+  h-16 
+  flex 
+  items-center 
+  justify-between;
+}
+
+.header-titles h1 {
+  @apply 
+  text-lg 
+  font-bold 
+  tracking-tight 
+  text-white 
+  leading-none;
+}
+
+.header-titles p {
+  @apply 
+  text-xs 
+  font-medium 
+  text-blue-100;
+}
+
+.header-profile {
+  @apply 
+  flex 
+  items-center 
+  gap-4;
+}
+
+.header-titles .layout-header-inner {
+  @apply 
+  justify-center; 
+}
+
+.layout-nav {
+  @apply 
+  bg-white 
+  border-b 
+  border-slate-200 
+  shrink-0;
+}
+
+.layout-nav-inner {
+  @apply 
+  mx-auto 
+  max-w-[1400px] 
+  px-6 
+  flex 
+  items-center 
+  gap-6 
+  h-14;
+}
+
+.nav-item {
+  @apply 
+  h-full 
+  flex 
+  items-center 
+  cursor-pointer 
+  transition-all 
+  border-b-2 
+  border-transparent 
+  text-slate-500 
+  hover:text-slate-800;
+}
+
+.nav-item.active {
+  @apply 
+  border-[#f97316] 
+  text-[#f97316] 
+  hover:text-[#f97316];
+}
+
+.nav-content {
+  @apply 
+  flex 
+  items-center 
+  gap-2 
+  pb-0.5;
+}
+
+.nav-text {
+  @apply 
+  text-sm 
+  font-medium;
+}
+
+.nav-item.active .nav-text {
+  @apply 
+  font-semibold;
+}
+
+.nav-button {
+  @apply 
+  px-4 
+  py-1.5 
+  rounded 
+  font-semibold 
+  text-sm 
+  cursor-pointer 
+  transition-colors 
+  border 
+  border-transparent 
+  text-slate-500 
+  hover:text-slate-800;
+}
+
+.nav-button.active {
+  @apply 
+  border-[#f97316] 
+  text-[#f97316];
+}
+
+.nav-icon {
+  @apply 
+  w-4 
+  h-4;
+}
+
+.header-avatar {
+  @apply 
+  flex 
+  h-8 
+  w-8 
+  items-center 
+  justify-center 
+  rounded-full 
+  bg-white/20 
+  text-white;
+}
+
+.header-profile-name {
+  @apply 
+  text-sm 
+  font-semibold 
+  text-white;
+}
+
+.header-profile-role {
+  @apply 
+  text-[10px] 
+  font-medium 
+  text-blue-100;
+}
+
+.header-logout-btn {
+  @apply 
+  h-8 
+  px-3 
+  text-xs 
+  border 
+  border-white/30 
+  bg-transparent 
+  text-white 
+  hover:bg-white/20 
+  hover:text-white 
+  rounded-full 
+  flex 
+  gap-1.5;
+}
+
+.layout-footer {
+  @apply 
+  bg-white 
+  border-t 
+  border-slate-200 
+  py-6 
+  shrink-0;
+}
+
+.layout-footer-inner {
+  @apply 
+  mx-auto 
+  max-w-[1400px] 
+  px-6 
+  flex 
+  justify-center 
+  items-center;
+}

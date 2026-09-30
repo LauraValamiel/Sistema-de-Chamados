@@ -1,0 +1,214 @@
+/* src/pages/TodosChamados.css */
+.tc-main { 
+    @apply 
+    mx-auto 
+    w-full 
+    max-w-[1400px] 
+    p-6 
+    space-y-8 
+    flex-1 
+    overflow-y-auto 
+    text-left; 
+}
+
+.tc-container { 
+    @apply 
+    max-w-[1200px] 
+    mx-auto 
+    space-y-8; 
+}
+
+.tc-header { 
+    @apply 
+    max-w-[1200px] 
+    mx-auto 
+    space-y-8; 
+}
+
+.tc-title { 
+    @apply 
+    text-3xl 
+    font-bold 
+    tracking-tight 
+    text-slate-900; 
+}
+
+.tc-subtitle { 
+    @apply 
+    text-slate-500; 
+}
+
+.tc-filter-card { 
+    @apply 
+    border-slate-200 
+    shadow-sm; 
+}
+
+.tc-filter-content { 
+    @apply 
+    p-6 
+    space-y-4; 
+}
+
+.tc-filter-title-wrap { 
+    @apply 
+    flex 
+    items-center 
+    gap-2 
+    text-slate-800 
+    font-semibold; 
+}
+
+.tc-filter-icon { 
+    @apply 
+    w-4 
+    h-4; 
+}
+
+.tc-filter-desc { 
+    @apply 
+    text-sm 
+    text-slate-500; 
+}
+
+.tc-filter-grid { 
+    @apply 
+    grid 
+    grid-cols-1 
+    md:grid-cols-3 
+    gap-4; 
+}
+
+.tc-search-wrap { 
+    @apply 
+    relative; 
+}
+
+.tc-search-icon { 
+    @apply 
+    absolute 
+    left-3 
+    top-3 
+    h-4 
+    w-4 
+    text-slate-400; 
+}
+
+.tc-search-input { 
+    @apply 
+    pl-9; 
+}
+
+.tc-list-wrap { 
+    @apply 
+    space-y-4; 
+}
+
+.tc-list-title { 
+    @apply 
+    font-bold 
+    text-slate-800; 
+}
+
+.tc-card { 
+    @apply 
+    hover:border-[#f97316] 
+    transition-colors 
+    border-slate-200 
+    cursor-pointer; 
+}
+
+.tc-card-content { 
+    @apply 
+    p-5 
+    flex 
+    flex-col 
+    md:flex-row 
+    justify-between 
+    gap-4; 
+}
+
+.tc-card-info { 
+    @apply 
+    space-y-3; 
+}
+
+.tc-card-badges { 
+    @apply 
+    flex 
+    items-center 
+    gap-2 
+    text-sm 
+    text-slate-400 
+    font-mono; 
+}
+
+.tc-badge-status { 
+    @apply 
+    bg-red-500 
+    text-white border-none; 
+}
+
+.tc-badge-priority { 
+    @apply 
+    text-red-500 
+    border-red-200; 
+}
+
+.tc-badge-category { 
+    @apply 
+    bg-slate-100; 
+}
+
+.tc-card-title { 
+    @apply 
+    text-lg 
+    font-bold 
+    text-slate-900; 
+}
+
+.tc-card-user-wrap { 
+    @apply 
+    flex 
+    items-center 
+    gap-4 
+    text-sm 
+    text-slate-500; 
+}
+
+.tc-card-dot { 
+    @apply 
+    w-1 
+    h-1 
+    bg-slate-300 
+    rounded-full; 
+}
+
+.tc-card-meta { 
+    @apply 
+    flex 
+    flex-col 
+    items-end 
+    justify-between 
+    text-right 
+    text-sm 
+    text-slate-400; 
+}
+
+.tc-card-date-wrap { 
+    @apply 
+    flex 
+    items-center 
+    gap-2; 
+}
+
+.tc-card-date-icon { 
+    @apply 
+    w-4 
+    h-4; 
+}
+
+.tc-card-time { 
+    @apply 
+    text-xs; 
+}

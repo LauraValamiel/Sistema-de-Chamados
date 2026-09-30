@@ -1,0 +1,91 @@
+/* src/pages/Login.css */
+.login-container { 
+    @apply 
+    flex h-screen 
+    w-full 
+    items-center 
+    justify-center 
+    bg-slate-100 px-4;
+}
+
+.login-card { 
+    @apply 
+    w-full 
+    max-w-md 
+    shadow-lg
+    border-slate-200; 
+}
+
+.login-header { 
+    @apply 
+    space-y-2 
+    text-center 
+    pb-6; 
+}
+
+.login-icon-wrapper { 
+    @apply 
+    mx-auto 
+    mb-6 
+    flex 
+    h-20 
+    items-center 
+    justify-center;
+}
+
+.login-icon { 
+    @apply 
+    h-full 
+    w-auto 
+    object-contain;
+}
+
+.login-title { 
+    @apply 
+    text-2xl 
+    font-bold 
+    tracking-tight 
+    text-slate-900; 
+}
+
+.login-desc { 
+    @apply 
+    text-slate-500 
+    font-medium; 
+}
+
+.login-content { 
+    @apply 
+    space-y-4; 
+}
+
+.login-field { 
+    @apply 
+    space-y-2 
+    text-left; 
+}
+
+.login-label { 
+    @apply 
+    text-slate-700; 
+}
+
+.login-input {
+    @apply 
+    bg-white; 
+}
+
+.login-footer {
+    @apply 
+    pt-8 
+    border-t-0 
+    bg-transparent; 
+}
+
+.login-btn { 
+    @apply 
+    w-full 
+    bg-slate-900 
+    hover:bg-slate-800 
+    text-white; 
+}
