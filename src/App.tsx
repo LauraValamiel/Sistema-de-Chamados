@@ -6,6 +6,7 @@ import NovoChamado from "./pages/NovoChamado" // Importe o novo arquivo
 import TodosChamados from "./pages/TodosChamados"
 import Layout from "./components/Layout"
 import GerenciarUsuarios from "./pages/GerenciarUsuarios";
+import AlterarSenha from "./pages/AlterarSenha";
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
           <Route path="/novo-chamado" element={<NovoChamado />} />
           <Route path="/todos-chamados" element={<TodosChamados />} />
           <Route path="/usuarios" element={<GerenciarUsuarios />} />
+          <Route path="/alterar-senha" element={<AlterarSenha />} />
         </Route>
         
       </Routes>

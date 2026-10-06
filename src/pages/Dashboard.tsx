@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react"
-import { useNavigate } from "react-router-dom"
 import { DragDropContext, Droppable, Draggable, type DropResult } from "@hello-pangea/dnd"
 import { api } from "@/services/api" // Nossa conexão com o FastAPI
 import { Button } from "@/components/ui/button"
@@ -56,7 +55,6 @@ const colunasVazias: ColunasType = {
 }
 
 export default function Dashboard() {
-  const navigate = useNavigate()
   const [colunas, setColunas] = useState<ColunasType>(colunasVazias);
   const [activeView, setActiveView] = useState<'kanban' | 'lista'>('kanban');
   const [sortBy, setSortBy] = useState<'prioridade' | 'recente' | 'antigo'>('prioridade');
@@ -208,7 +206,7 @@ export default function Dashboard() {
   };
 
   // Prepara dados para a lista
-  const todosChamadosLista = Object.entries(colunas).flatMap(([idColuna, coluna]) => 
+  const todosChamadosLista = Object.entries(colunas).flatMap(([, coluna]) => 
     coluna.items.map(item => ({
       ...item,
       status: coluna.titulo,

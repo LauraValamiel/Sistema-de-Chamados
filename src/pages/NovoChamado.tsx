@@ -24,7 +24,7 @@ export default function NovoChamado() {
   // Estados para o formulário
   const [titulo, setTitulo] = useState("")
   const [descricao, setDescricao] = useState("")
-  const [categoria, setCategoria] = useState("")
+  const [categoria] = useState("")
   const [prioridade, setPrioridade] = useState("media")
   
   // Estado para guardar o ID que vem do banco

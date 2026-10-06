@@ -43,26 +43,6 @@ export default function GerenciarUsuarios() {
     setPerfil("solicitante");
   };
 
-  const handleCriarUsuario = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      await api.post("/usuarios/", {
-        nome: nome.toUpperCase(),
-        matricula: matricula,
-        senha: senha,
-        setor: setor,
-        perfil: perfil,
-        email: `${matricula}@belavistademinas.mg.gov.br` // Gera o email automaticamente
-      });
-      
-      alert("✅ Usuário cadastrado com sucesso!");
-      setNome(""); setMatricula(""); setSenha(""); setSetor("Geral"); setPerfil("solicitante");
-      carregarUsuarios(); // Atualiza a tabela
-    } catch (error: any) {
-      alert("❌ Erro ao cadastrar. Verifique se a matrícula já existe.");
-    }
-  };
-
   const handleEditarUsuario = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -148,7 +128,7 @@ export default function GerenciarUsuarios() {
             </CardTitle>
           </CardHeader>
           <CardContent className="p-5">
-            <form onSubmit={handleCriarUsuario} className="space-y-4">
+            <form onSubmit={handleEditarUsuario} className="space-y-4">
               <div className="space-y-2">
                 <Label>Nome Completo</Label>
                 <Input required value={nome} onChange={(e) => setNome(e.target.value)} placeholder="Ex: João da Silva" />
@@ -159,7 +139,7 @@ export default function GerenciarUsuarios() {
               </div>
               <div className="space-y-2">
                 <Label>{usuarioEditando ? 'Nova Senha (opcional)' : 'Senha'}</Label>
-                <Input required={!usuarioEditando} type="text" value={senha} onChange={(e) => setSenha(e.target.value)} placeholder={usuarioEditando ? 'Digite para alterar...' : 'Defina uma senha'} />
+                <Input required={!usuarioEditando} type="password" value={senha} onChange={(e) => setSenha(e.target.value)} placeholder={usuarioEditando ? 'Digite para alterar...' : 'Defina uma senha'} />
               </div>
               <div className="space-y-2">
                 <Label>Setor</Label>

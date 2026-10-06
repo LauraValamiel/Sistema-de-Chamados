@@ -1,6 +1,7 @@
 import axios from "axios";
 
 export const api = axios.create({
-  baseURL: "http://127.0.0.1:8000", // O endereço do seu FastAPI
-  timeout: 5000,
+  // Em produção vem da variável VITE_API_URL (configurada na Vercel)
+  baseURL: import.meta.env.VITE_API_URL ?? "http://127.0.0.1:8000",
+  timeout: 15000,
 });

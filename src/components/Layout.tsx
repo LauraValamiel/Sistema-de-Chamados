@@ -1,7 +1,6 @@
 import { Navigate, Outlet, useLocation, useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { LayoutDashboard, List, LogOut, Plus, User, Users } from "lucide-react"
+import { KeyRound, LayoutDashboard, List, LogOut, Plus, User, Users } from "lucide-react"
 import "./Layout.css"
 import { formatarNome } from "@/lib/utils"
 
@@ -16,6 +15,11 @@ export default function Layout() {
 
     if (!usuario) {
         return <Navigate to="/login" replace />
+    }
+
+    // Enquanto estiver com a senha padrão, só pode acessar a tela de troca de senha
+    if (usuario.precisaTrocarSenha && path !== "/alterar-senha") {
+        return <Navigate to="/alterar-senha" replace />
     }
 
     const isPrvilegiado = usuario.perfil === "admin" || usuario.perfil === "tecnico";
@@ -99,6 +103,13 @@ export default function Layout() {
                             </div>
                         </div>
                     )}
+
+                    <div className={`nav-item ${path === '/alterar-senha' ? 'active' : ''}`} onClick={() => navigate("/alterar-senha")}>
+                        <div className="nav-content">
+                            <KeyRound className="nav-icon" />
+                            <span className="nav-text">Alterar Senha</span>
+                        </div>
+                    </div>
 
                     {isAdmin && (
                         <div className={`nav-item ${path === '/usuarios' ? 'active' : ''}`} onClick={() => navigate("/usuarios")}>
