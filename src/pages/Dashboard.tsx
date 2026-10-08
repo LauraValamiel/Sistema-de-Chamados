@@ -1,10 +1,11 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { DragDropContext, Droppable, Draggable, type DropResult } from "@hello-pangea/dnd"
 import { api } from "@/services/api" // Nossa conexão com o FastAPI
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import "./Dashboard.css"
+import ModalChamado from "@/components/ModalChamado"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   DropdownMenu,
@@ -20,7 +21,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { ArrowUpDown, AlertTriangle, GitPullRequest, Clock3, CheckCircle2, User, CalendarDays, UserPlus, ChevronDown, X } from "lucide-react"
+import { ArrowUpDown, AlertTriangle, GitPullRequest, Clock3, CheckCircle2, User, CalendarDays, UserPlus, ChevronDown } from "lucide-react"
 import { formatarNome } from "@/lib/utils"  
 
 // Tipagem do Chamado (Agora adaptada para o que deve vir do banco)
@@ -32,6 +33,7 @@ interface ChamadoKanban {
   usuario_solicitante: string;
   data_abertura: string;
   tecnico_responsavel?: string;
+  id_tecnico?: number | null;
   status?: string;
   descricao?: string;
 }
@@ -65,6 +67,7 @@ export default function Dashboard() {
   const usuarioLogado = usuarioStorage ? JSON.parse(usuarioStorage) : null;
 
   const [chamadoSelecionado, setChamadoSelecionado] = useState<ChamadoKanban | null>(null);
+  const fecharModal = useCallback(() => setChamadoSelecionado(null), []);
 
   // Busca os dados reais do FastAPI quando a tela abre
   useEffect(() => {
@@ -140,7 +143,10 @@ export default function Dashboard() {
           categoria: chamado.categoria || 'Geral',
           usuario_solicitante: formatarNome(chamado.solicitante_nome) || 'Usuário Sistema',
           data_abertura: dataFormatada,
-          tecnico_responsavel: formatarNome(chamado.tecnico_nome) || undefined,
+          // Sem técnico: deixa vazio para mostrar o botão "Atribuir a mim"
+          tecnico_responsavel: chamado.id_tecnico ? formatarNome(chamado.tecnico_nome) : undefined,
+          id_tecnico: chamado.id_tecnico ?? null,
+          status: chamado.status || 'Aberto',
           descricao: chamado.descricao || 'Nenhuma descrição fornecida.'
         };
 
@@ -498,7 +504,7 @@ export default function Dashboard() {
                   <TableRow><TableCell colSpan={6} className="list-empty-cell">Nenhum chamado no banco de dados.</TableCell></TableRow>
                 ) : (
                   todosChamadosLista.map((chamado) => (
-                    <TableRow key={chamado.id} className="list-row">
+                    <TableRow key={chamado.id} className="list-row cursor-pointer" onClick={() => setChamadoSelecionado(chamado)}>
                       <TableCell className="list-td-id">#{chamado.id}</TableCell>
                       <TableCell><div className="list-td-title">{chamado.titulo}</div><div className="list-td-category">{chamado.categoria}</div></TableCell>
                       <TableCell><div className="list-td-status-wrap"><div className={`list-td-status-dot ${chamado.corDot}`} /><span className="list-td-status-text">{chamado.status}</span></div></TableCell>
@@ -514,62 +520,15 @@ export default function Dashboard() {
         </div>
       )}
       {chamadoSelecionado && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4" onClick={() => setChamadoSelecionado(null)}>
-          <Card className="w-full max-w-2xl shadow-2xl relative animate-in fade-in zoom-in-95 duration-200 border-0" onClick={(e) => e.stopPropagation()}>
-            
-            <Button
-              variant="ghost"
-              className="absolute top-4 right-4 h-8 w-8 p-0 rounded-full hover:bg-slate-100 text-slate-500"
-              onClick={() => setChamadoSelecionado(null)}
-            >
-              <X className="h-5 w-5" />
-            </Button>
-
-            <CardHeader className="bg-slate-50 rounded-t-xl border-b border-slate-100 pb-5 pt-6">
-              <div className="flex items-center gap-2 mb-2">
-                 <Badge variant="outline" className="bg-white text-slate-600 border-slate-200 font-bold">
-                   #{chamadoSelecionado.id}
-                 </Badge>
-                 {renderBadgePrioridade(chamadoSelecionado.prioridade)}
-                 <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-100 border-none font-medium">
-                   {chamadoSelecionado.categoria}
-                 </Badge>
-              </div>
-              <CardTitle className="text-2xl text-slate-800 font-bold leading-tight pr-8">
-                {chamadoSelecionado.titulo}
-              </CardTitle>
-            </CardHeader>
-
-            <CardContent className="p-6 space-y-6">
-              <div>
-                <h4 className="text-sm font-bold text-slate-800 mb-2 flex items-center gap-2">
-                  <AlertTriangle className="h-4 w-4 text-slate-400" /> 
-                  Descrição do Problema
-                </h4>
-                <div className="bg-white p-4 rounded-lg text-slate-700 text-sm border border-slate-200 whitespace-pre-wrap leading-relaxed shadow-sm">
-                  {chamadoSelecionado.descricao}
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-6 bg-slate-50 p-4 rounded-lg border border-slate-100">
-                <div>
-                   <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Solicitante</h4>
-                   <p className="text-sm font-medium text-slate-800 flex items-center gap-2">
-                     <User className="h-4 w-4 text-slate-400" />
-                     {chamadoSelecionado.usuario_solicitante}
-                   </p>
-                </div>
-                <div>
-                   <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Técnico Responsável</h4>
-                   <p className="text-sm font-medium text-slate-800 flex items-center gap-2">
-                     <GitPullRequest className="h-4 w-4 text-slate-400" />
-                     {chamadoSelecionado.tecnico_responsavel || 'Não atribuído'}
-                   </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+        <ModalChamado
+          chamado={chamadoSelecionado}
+          tecnicos={tecnicos}
+          onFechar={fecharModal}
+          onSalvo={(atualizado) => {
+            setChamadoSelecionado({ ...chamadoSelecionado, ...atualizado } as ChamadoKanban);
+            carregarChamados(true);
+          }}
+        />
       )}
     </main>
   )
