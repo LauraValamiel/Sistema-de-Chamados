@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { Navigate, Outlet, useLocation, useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { ClipboardList, LayoutDashboard, List, LogOut, Plus, User, UserRound, Users } from "lucide-react"
@@ -23,6 +23,13 @@ export default function Layout() {
 
     const usuarioStorage = localStorage.getItem("usuarioLogado");
     const usuario = usuarioStorage ? JSON.parse(usuarioStorage) : null;
+
+    // No celular o menu rola para o lado: mantém a aba ativa visível
+    const navRef = useRef<HTMLDivElement>(null);
+    useEffect(() => {
+        const ativo = navRef.current?.querySelector(".nav-item.active") as HTMLElement | null;
+        ativo?.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+    }, [path]);
 
     // Notificações de novos chamados (só para admin e técnico)
     const recebeNotificacoes =
@@ -59,11 +66,14 @@ export default function Layout() {
         <div className="layout-root">
             <header className="layout-header">
                 <div className="layout-header-inner">
-                    <div className="flex items-center gap-3">
-                        <img src="/logotipobvm.png" alt="Logo Moderna Bela Vista de Minas" className="h-11 w-auto object-contain" />
-                        <div className="header-titles space-y-0.5 text-left">
-                            <h1>Sistema de Chamados - TI</h1>
-                            <p>Prefeitura Municipal de Bela Vista de Minas</p>
+                    <div className="flex min-w-0 items-center gap-2 sm:gap-3">
+                        <img src="/logotipobvm.png" alt="Logo Moderna Bela Vista de Minas" className="h-9 w-auto shrink-0 object-contain sm:h-11" />
+                        <div className="header-titles min-w-0 space-y-0.5 text-left">
+                            <h1 className="truncate">
+                                <span className="sm:hidden">Chamados TI</span>
+                                <span className="hidden sm:inline">Sistema de Chamados - TI</span>
+                            </h1>
+                            <p className="hidden truncate sm:block">Prefeitura Municipal de Bela Vista de Minas</p>
                         </div>
                     </div>
                     <div className="header-profile">
@@ -78,31 +88,37 @@ export default function Layout() {
                                 onPedirPermissao={notif.pedirPermissao}
                             />
                         )}
-                        <div className="flex items-center gap-2">
-                            <div className="header-avatar">
+                        <button
+                            type="button"
+                            onClick={() => navigate("/meus-dados")}
+                            className="flex min-w-0 items-center gap-2 rounded-full text-left"
+                            title={`${formatarNome(usuario?.nome)} · Meus dados`}
+                        >
+                            <div className="header-avatar shrink-0">
                                 <User className="h-4 w-4" />
                             </div>
-                            <div className="text-left space-y-0.5 leading-none">
-                                <p className="header-profile-name">{formatarNome(usuario?.nome)}</p>
+                            <div className="hidden min-w-0 space-y-0.5 leading-none md:block">
+                                <p className="header-profile-name max-w-[220px] truncate">{formatarNome(usuario?.nome)}</p>
                                 <p className="header-profile-role">{formatarNome(usuario?.perfil)}</p>
                             </div>
-                        </div>
+                        </button>
                         <Button 
                             variant="ghost" 
                             className="header-logout-btn"
                             onClick={handleLogout}
+                            title="Sair"
                         >
                             <LogOut className="h-3.5 w-3.5" />
-                            Sair
+                            <span className="hidden sm:inline">Sair</span>
                         </Button>
                     </div>
                 </div>
             </header>
 
             <nav className="layout-nav">
-                <div className="layout-nav-inner">
+                <div className="layout-nav-inner" ref={navRef}>
                     
-                    <div className="flex items-center pr-6 mr-2 border-r border-slate-200 h-8">
+                    <div className="hidden items-center pr-6 mr-2 border-r border-slate-200 h-8 shrink-0 md:flex">
                         <img src="/bvm.png" alt="Brasão Bela Vista de Minas" className="h-8 w-auto object-contain" />
                     </div>
 

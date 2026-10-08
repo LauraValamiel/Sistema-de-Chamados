@@ -196,11 +196,11 @@ export default function ModalChamado({ chamado, tecnicos, versaoDados = 0, onFec
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4"
+      className="fixed inset-0 z-[100] flex items-end justify-center bg-slate-900/50 backdrop-blur-sm p-0 sm:items-center sm:p-4"
       onClick={onFechar}
     >
       <Card
-        className="relative w-full max-w-3xl max-h-[calc(100vh-2rem)] overflow-y-auto border-0 shadow-2xl notif-painel"
+        className="relative w-full max-w-3xl max-h-[92vh] rounded-b-none sm:max-h-[calc(100vh-2rem)] sm:rounded-b-xl overflow-y-auto border-0 shadow-2xl notif-painel"
         onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"
@@ -225,10 +225,10 @@ export default function ModalChamado({ chamado, tecnicos, versaoDados = 0, onFec
               {chamado.categoria}
             </Badge>
           </div>
-          <CardTitle className="pr-8 text-2xl font-bold leading-tight text-slate-800">{chamado.titulo}</CardTitle>
+          <CardTitle className="pr-8 text-xl font-bold leading-tight text-slate-800 sm:text-2xl">{chamado.titulo}</CardTitle>
         </CardHeader>
 
-        <CardContent className="space-y-6 p-6">
+        <CardContent className="space-y-6 p-4 sm:p-6">
           {/* Descrição */}
           <div>
             <h4 className="mb-2 flex items-center gap-2 text-sm font-bold text-slate-800">

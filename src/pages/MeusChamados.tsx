@@ -100,10 +100,10 @@ function Progresso({ chave }: { chave: ChaveStatus }) {
               <div className={`flex h-7 w-7 items-center justify-center rounded-full border-2 text-xs font-bold ${cor} ${ativo ? "ring-4 ring-offset-0 ring-slate-100" : ""}`}>
                 {feito ? <CheckCircle2 className="h-4 w-4" /> : i + 1}
               </div>
-              <span className={`whitespace-nowrap text-[11px] font-medium ${feito || ativo ? "text-slate-700" : "text-slate-400"}`}>{rotulo}</span>
+              <span className={`whitespace-nowrap text-[10px] sm:text-[11px] font-medium ${feito || ativo ? "text-slate-700" : "text-slate-400"}`}>{rotulo}</span>
             </div>
             {i < passos.length - 1 && (
-              <div className={`mx-2 mb-5 h-0.5 flex-1 rounded ${i < atual ? "bg-emerald-400" : "bg-slate-200"}`} />
+              <div className={`mx-1 sm:mx-2 mb-5 h-0.5 flex-1 rounded ${i < atual ? "bg-emerald-400" : "bg-slate-200"}`} />
             )}
           </div>
         )
@@ -215,10 +215,10 @@ export default function MeusChamados() {
   ]
 
   return (
-    <main className="mx-auto w-full max-w-4xl space-y-6 p-6 md:p-8">
+    <main className="mx-auto w-full max-w-4xl space-y-5 p-4 sm:p-6 md:p-8">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight text-slate-800">Meus Chamados</h2>
+          <h2 className="text-2xl font-bold tracking-tight text-slate-800 sm:text-3xl">Meus Chamados</h2>
           <p className="mt-1 text-slate-500">Acompanhe a evolução dos chamados que você abriu.</p>
         </div>
         <Button onClick={() => navigate("/novo-chamado")} className="bg-blue-600 hover:bg-blue-700">
@@ -283,7 +283,7 @@ export default function MeusChamados() {
             return (
               <Card key={c.id} className="relative overflow-hidden border-slate-200 shadow-sm">
                 <span className={`absolute inset-y-0 left-0 w-1.5 ${st.barra}`} />
-                <CardContent className="space-y-4 p-5 pl-7">
+                <CardContent className="space-y-4 p-4 pl-6 sm:p-5 sm:pl-7">
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="min-w-0 space-y-1.5">
                       <div className="flex flex-wrap items-center gap-2 text-xs">
@@ -293,7 +293,7 @@ export default function MeusChamados() {
                       </div>
                       <h3 className="text-lg font-semibold leading-snug text-slate-800">{c.titulo}</h3>
                     </div>
-                    <div className="text-right text-xs text-slate-500">
+                    <div className="flex flex-col text-xs text-slate-500 sm:text-right">
                       <p className="inline-flex items-center gap-1"><CalendarDays className="h-3.5 w-3.5" /> Aberto em {dataHora(c.data_abertura)}</p>
                       <p className="mt-0.5 inline-flex items-center gap-1"><Clock3 className="h-3.5 w-3.5" /> Atualizado {tempoRelativo(c.ultima_atualizacao)}</p>
                     </div>

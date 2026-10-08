@@ -89,3 +89,21 @@
     hover:bg-slate-800 
     text-white; 
 }
+/* --- Responsivo: no celular a tela de cadastro é mais alta que a tela --- */
+.login-container {
+  height: auto;
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+}
+
+@media (max-width: 767px) {
+  .login-container {
+    padding: 1rem 0.75rem;
+    align-items: flex-start;
+  }
+  .login-icon-wrapper {
+    margin-bottom: 0.75rem;
+  }
+}

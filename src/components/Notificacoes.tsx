@@ -87,7 +87,7 @@ export function SinoNotificacoes({
       </button>
 
       {aberto && (
-        <div className="absolute right-0 top-11 z-50 w-[360px] max-w-[calc(100vw-2rem)] overflow-hidden rounded-xl border border-slate-200 bg-white shadow-2xl notif-painel">
+        <div className="fixed left-3 right-3 top-14 z-50 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-2xl notif-painel sm:absolute sm:left-auto sm:right-0 sm:top-11 sm:w-[360px]">
           <div className="flex items-center justify-between border-b border-slate-100 bg-slate-50 px-4 py-3">
             <div>
               <p className="text-sm font-semibold text-slate-800">Notificações</p>
@@ -122,7 +122,7 @@ export function SinoNotificacoes({
             </p>
           )}
 
-          <div className="max-h-[380px] overflow-y-auto">
+          <div className="max-h-[60vh] overflow-y-auto sm:max-h-[380px]">
             {notificacoes.length === 0 ? (
               <div className="flex flex-col items-center gap-2 px-4 py-10 text-center">
                 <Bell className="h-8 w-8 text-slate-300" />
@@ -173,7 +173,7 @@ export function ToastsChamados({ toasts, onFechar, onAbrir }: ToastsProps) {
   }, [toasts, onFechar])
 
   return (
-    <div className="pointer-events-none fixed bottom-5 right-5 z-[200] flex w-[360px] max-w-[calc(100vw-2.5rem)] flex-col gap-3">
+    <div className="pointer-events-none fixed bottom-3 left-3 right-3 z-[200] flex flex-col gap-3 sm:bottom-5 sm:left-auto sm:right-5 sm:w-[360px]">
       {toasts.map((t) => (
         <div key={t.id}
           className="pointer-events-auto flex overflow-hidden rounded-xl border border-slate-200 bg-white shadow-2xl notif-toast">

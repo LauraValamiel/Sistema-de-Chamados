@@ -191,7 +191,7 @@ export default function AlterarSenha({ embutido = false }: { embutido?: boolean 
   if (embutido) return cartao
 
   return (
-    <main className="p-8 w-full max-w-xl mx-auto space-y-6">
+    <main className="p-4 sm:p-8 w-full max-w-xl mx-auto space-y-6">
       <div>
         <h2 className="text-3xl font-bold text-slate-800 tracking-tight">Alterar Senha</h2>
         <p className="text-slate-500 mt-1">Defina uma nova senha para acessar o sistema.</p>

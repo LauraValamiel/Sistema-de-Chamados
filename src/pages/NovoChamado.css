@@ -151,3 +151,27 @@
     h-4 
     mr-2; 
 }
+
+/* --- Responsivo (celular) --- */
+@media (max-width: 767px) {
+  .nc-main {
+    padding: 1rem;
+  }
+  .nc-container {
+    margin-top: 0;
+  }
+  .nc-title {
+    font-size: 1.6rem;
+    line-height: 2rem;
+  }
+  .nc-card-content {
+    padding: 1rem;
+  }
+  /* Botões ocupam a largura toda, "Enviar" em cima */
+  .nc-footer {
+    flex-direction: column-reverse;
+  }
+  .nc-footer > * {
+    width: 100%;
+  }
+}

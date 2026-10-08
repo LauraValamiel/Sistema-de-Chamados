@@ -97,11 +97,11 @@ export default function ModalEditarUsuario({ usuario, setores, onFechar, onSalvo
   }
 
   return createPortal(
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm" onClick={onFechar}>
+    <div className="fixed inset-0 z-[100] flex items-end justify-center bg-slate-900/50 p-0 backdrop-blur-sm sm:items-center sm:p-4" onClick={onFechar}>
       <form
         onSubmit={salvar}
         onClick={(e) => e.stopPropagation()}
-        className="notif-painel relative max-h-[calc(100vh-2rem)] w-full max-w-xl overflow-y-auto rounded-xl bg-white shadow-2xl"
+        className="notif-painel relative max-h-[92vh] rounded-b-none sm:max-h-[calc(100vh-2rem)] sm:rounded-b-xl w-full max-w-xl overflow-y-auto rounded-xl bg-white shadow-2xl"
         role="dialog"
         aria-modal="true"
       >

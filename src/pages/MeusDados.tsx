@@ -117,9 +117,9 @@ export default function MeusDados() {
   }
 
   return (
-    <main className="mx-auto w-full max-w-5xl space-y-6 p-6 md:p-8">
+    <main className="mx-auto w-full max-w-5xl space-y-5 p-4 sm:p-6 md:p-8">
       <div>
-        <h2 className="text-3xl font-bold tracking-tight text-slate-800">Meus Dados</h2>
+        <h2 className="text-2xl font-bold tracking-tight text-slate-800 sm:text-3xl">Meus Dados</h2>
         <p className="mt-1 text-slate-500">Mantenha suas informações atualizadas e altere sua senha.</p>
       </div>
 

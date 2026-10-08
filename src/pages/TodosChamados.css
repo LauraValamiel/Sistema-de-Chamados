@@ -212,3 +212,38 @@
     @apply 
     text-xs; 
 }
+
+/* --- Responsivo (celular) --- */
+@media (max-width: 767px) {
+  .tc-main {
+    padding: 1rem;
+  }
+  .tc-container,
+  .tc-main > * + * {
+    row-gap: 0;
+  }
+  .tc-container > * + * {
+    margin-top: 1.25rem;
+  }
+  .tc-header > * + * {
+    margin-top: 0.25rem;
+  }
+  .tc-title {
+    font-size: 1.6rem;
+    line-height: 2rem;
+  }
+  .tc-filter-content {
+    padding: 1rem;
+  }
+  .tc-card-content {
+    padding: 1rem;
+  }
+  /* Data e hora ficam numa linha só, abaixo do conteúdo */
+  .tc-card-meta {
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.75rem;
+    text-align: left;
+  }
+}

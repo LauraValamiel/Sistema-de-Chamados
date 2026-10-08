@@ -150,9 +150,9 @@ export default function GerenciarUsuarios() {
   };
 
   return (
-    <main className="p-8 w-full max-w-7xl mx-auto space-y-8">
+    <main className="p-4 sm:p-8 w-full max-w-7xl mx-auto space-y-6 sm:space-y-8">
       <div>
-        <h2 className="text-3xl font-bold text-slate-800 tracking-tight">Gerenciar Usuários</h2>
+        <h2 className="text-2xl sm:text-3xl font-bold text-slate-800 tracking-tight">Gerenciar Usuários</h2>
         <p className="text-slate-500 mt-1">Adicione, edite ou remova o acesso de servidores e técnicos ao sistema.</p>
         {aviso && (
           <div className="mt-3 inline-flex items-center gap-2 rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm font-medium text-emerald-700">
@@ -289,8 +289,8 @@ export default function GerenciarUsuarios() {
             </div>
           </div>
 
-          <CardContent className="p-0 h-[600px] overflow-auto">
-            <Table>
+          <CardContent className="p-0 h-[70vh] sm:h-[600px] overflow-auto">
+            <Table className="min-w-[560px]">
               <TableHeader className="bg-slate-50 sticky top-0 z-10">
                 <TableRow>
                   <TableHead>Nome</TableHead>
