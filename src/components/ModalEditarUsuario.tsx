@@ -7,6 +7,8 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { AlertTriangle, BadgeCheck, Eye, EyeOff, Loader2, Mail, Save, UserCog, X } from "lucide-react"
 import { formatarNome } from "@/lib/utils"
+import SelectSetor from "@/components/SelectSetor"
+import { setorOficial } from "@/lib/setores"
 
 export interface UsuarioEditavel {
   id: number
@@ -19,14 +21,13 @@ export interface UsuarioEditavel {
 
 interface Props {
   usuario: UsuarioEditavel
-  setores: string[]
   onFechar: () => void
   onSalvo: () => void
 }
 
 const emailValido = (e: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e.trim())
 
-export default function ModalEditarUsuario({ usuario, setores, onFechar, onSalvo }: Props) {
+export default function ModalEditarUsuario({ usuario, onFechar, onSalvo }: Props) {
   const [nome, setNome] = useState(usuario.nome)
   const [matricula, setMatricula] = useState(usuario.matricula)
   const [email, setEmail] = useState(usuario.email)
@@ -57,6 +58,10 @@ export default function ModalEditarUsuario({ usuario, setores, onFechar, onSalvo
 
     if (!nome.trim() || !matricula.trim() || !setor.trim()) {
       setErro("Preencha nome, matrícula e setor.")
+      return
+    }
+    if (!setorOficial(setor)) {
+      setErro("Escolha um setor da lista.")
       return
     }
     if (!emailValido(email)) {
@@ -133,10 +138,7 @@ export default function ModalEditarUsuario({ usuario, setores, onFechar, onSalvo
             </div>
             <div className="space-y-2">
               <Label>Setor</Label>
-              <Input required list="lista-setores" value={setor} onChange={(e) => setSetor(e.target.value)} placeholder="Ex: Saúde, Obras..." />
-              <datalist id="lista-setores">
-                {setores.map((s) => <option key={s} value={s} />)}
-              </datalist>
+              <SelectSetor value={setor} onChange={setSetor} contentClassName="z-[300]" />
             </div>
           </div>
 

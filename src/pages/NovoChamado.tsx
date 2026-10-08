@@ -17,6 +17,8 @@ import {
 import { Loader2, Send } from "lucide-react"
 import "./NovoChamado.css"
 import { formatarNome } from "@/lib/utils"
+import SelectSetor from "@/components/SelectSetor"
+import { setorOficial } from "@/lib/setores"
 
 const LIMITE_DESCRICAO = 2000
 
@@ -27,6 +29,7 @@ export default function NovoChamado() {
   const usuario = usuarioStorage ? JSON.parse(usuarioStorage) : null
   const privilegiado = usuario?.perfil === "admin" || usuario?.perfil === "tecnico"
 
+  const [setor, setSetor] = useState<string>(usuario?.setor || "")
   const [descricao, setDescricao] = useState("")
   const [prioridade, setPrioridade] = useState("media")
   const [enviando, setEnviando] = useState(false)
@@ -36,6 +39,10 @@ export default function NovoChamado() {
     e.preventDefault()
     setErro("")
 
+    if (!setorOficial(setor)) {
+      setErro("Escolha o seu setor na lista.")
+      return
+    }
     if (!descricao.trim()) {
       setErro("Descreva o problema antes de enviar.")
       return
@@ -43,6 +50,14 @@ export default function NovoChamado() {
 
     setEnviando(true)
     try {
+      // Se a pessoa escolheu outro setor, atualiza o cadastro dela antes de abrir o chamado
+      // (o setor do chamado é o setor do solicitante)
+      if (setor !== usuario?.setor) {
+        const { data } = await api.put("/usuarios/me", { setor })
+        localStorage.setItem("usuarioLogado", JSON.stringify({ ...usuario, setor: data.setor }))
+        window.dispatchEvent(new Event("usuario-atualizado"))
+      }
+
       // O título é gerado automaticamente pelo servidor a partir da descrição
       await api.post("/chamados/", {
         descricao: descricao.trim(),
@@ -84,8 +99,11 @@ export default function NovoChamado() {
                     <Input value={formatarNome(usuario?.nome || "")} readOnly className="nc-input-readonly" />
                   </div>
                   <div className="nc-field">
-                    <Label className="nc-label">Setor</Label>
-                    <Input value={usuario?.setor || "Geral"} readOnly className="nc-input-readonly" />
+                    <Label className="nc-label">Setor *</Label>
+                    <SelectSetor value={setor} onChange={setSetor} placeholder="Selecione o seu setor" />
+                    {setorOficial(setor) && setor !== usuario?.setor && (
+                      <p className="text-[11px] text-slate-500">Seu setor também será atualizado no seu cadastro.</p>
+                    )}
                   </div>
                 </div>
               </div>

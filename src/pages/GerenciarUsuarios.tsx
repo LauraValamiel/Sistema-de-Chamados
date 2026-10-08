@@ -9,6 +9,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { UserPlus, Trash2, Pencil, X, Search, SearchX, FilterX, CheckCircle2 } from "lucide-react";
 import { formatarNome } from "@/lib/utils";
 import ModalEditarUsuario, { type UsuarioEditavel } from "@/components/ModalEditarUsuario";
+import SelectSetor from "@/components/SelectSetor";
+import { SETORES, setorOficial } from "@/lib/setores";
 
 // Remove acentos e deixa minúsculo, para a busca achar "joao" em "JOÃO"
 const normalizar = (texto: unknown) =>
@@ -42,7 +44,7 @@ export default function GerenciarUsuarios() {
   const [matricula, setMatricula] = useState("");
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
-  const [setor, setSetor] = useState("Geral");
+  const [setor, setSetor] = useState("");
   const [perfil, setPerfil] = useState("solicitante");
 
   useEffect(() => {
@@ -58,14 +60,13 @@ export default function GerenciarUsuarios() {
     }
   };
 
-  // Setores existentes (para o filtro), em ordem alfabética
-  const setores = useMemo(
-    () =>
-      Array.from(new Set(usuarios.map((u) => (u.setor || "").trim()).filter(Boolean))).sort((a, b) =>
-        a.localeCompare(b, "pt-BR")
-      ),
-    [usuarios]
-  );
+  // Filtro de setor: lista oficial + setores antigos que ainda existem em algum usuário
+  const setores = useMemo(() => {
+    const antigos = usuarios
+      .map((u) => (u.setor || "").trim())
+      .filter((st) => st && !setorOficial(st));
+    return [...SETORES, ...Array.from(new Set(antigos)).sort((a, b) => a.localeCompare(b, "pt-BR"))];
+  }, [usuarios]);
 
   // Quantidade de usuários por perfil (mostrada nos botões de filtro)
   const contagemPerfil = useMemo(() => {
@@ -108,7 +109,7 @@ export default function GerenciarUsuarios() {
     setMatricula("");
     setEmail("");
     setSenha("");
-    setSetor("Geral");
+    setSetor("");
     setPerfil("solicitante");
   };
 
@@ -119,6 +120,10 @@ export default function GerenciarUsuarios() {
 
   const handleCriarUsuario = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!setorOficial(setor)) {
+      alert("Escolha o setor na lista.");
+      return;
+    }
     try {
       await api.post("/usuarios/", {
         nome: nome.trim().toUpperCase(),
@@ -191,10 +196,7 @@ export default function GerenciarUsuarios() {
               </div>
               <div className="space-y-2">
                 <Label>Setor</Label>
-                <Input required list="setores-cadastro" value={setor} onChange={(e) => setSetor(e.target.value)} placeholder="Ex: Geral, Saúde, Obras..." />
-                <datalist id="setores-cadastro">
-                  {setores.map((s) => <option key={s} value={s} />)}
-                </datalist>
+                <SelectSetor value={setor} onChange={setSetor} />
               </div>
               <div className="space-y-2">
                 <Label>Nível de Acesso (Perfil)</Label>
@@ -243,7 +245,7 @@ export default function GerenciarUsuarios() {
                 <SelectTrigger className="sm:w-52 bg-white">
                   <SelectValue placeholder="Setor" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="max-h-72" position="popper">
                   <SelectItem value="todos">Todos os setores</SelectItem>
                   {setores.map((s) => (
                     <SelectItem key={s} value={s}>{s}</SelectItem>
@@ -354,7 +356,6 @@ export default function GerenciarUsuarios() {
       {usuarioEditando && (
         <ModalEditarUsuario
           usuario={usuarioEditando}
-          setores={setores}
           onFechar={() => setUsuarioEditando(null)}
           onSalvo={() => {
             setUsuarioEditando(null);

@@ -8,6 +8,8 @@ import { Label } from "@/components/ui/label"
 import { AlertTriangle, BadgeCheck, Building2, CheckCircle2, Loader2, Mail, Save, ShieldCheck, UserRound } from "lucide-react"
 import { formatarNome } from "@/lib/utils"
 import AlterarSenha from "./AlterarSenha"
+import SelectSetor from "@/components/SelectSetor"
+import { setorOficial } from "@/lib/setores"
 
 interface Dados {
   id: number
@@ -30,7 +32,6 @@ export default function MeusDados() {
   const location = useLocation()
   const novoCadastro = Boolean((location.state as any)?.novoCadastro)
   const [dados, setDados] = useState<Dados | null>(null)
-  const [setores, setSetores] = useState<string[]>([])
   const [nome, setNome] = useState("")
   const [matricula, setMatricula] = useState("")
   const [email, setEmail] = useState("")
@@ -51,7 +52,6 @@ export default function MeusDados() {
     api.get<Dados>("/usuarios/me").then(({ data }) => preencher(data)).catch(() => {
       setMensagem({ tipo: "erro", texto: "Não foi possível carregar os seus dados." })
     })
-    api.get<string[]>("/setores/").then(({ data }) => setSetores(data)).catch(() => {})
   }, [])
 
   const houveMudanca =
@@ -68,6 +68,10 @@ export default function MeusDados() {
 
     if (!nome.trim() || !matricula.trim() || !setor.trim()) {
       setMensagem({ tipo: "erro", texto: "Preencha nome, matrícula e setor." })
+      return
+    }
+    if (!setorOficial(setor)) {
+      setMensagem({ tipo: "erro", texto: "Escolha o seu setor na lista." })
       return
     }
     if (!/^\d+$/.test(matricula.trim())) {
@@ -173,10 +177,7 @@ export default function MeusDados() {
                   </div>
                   <div className="space-y-2">
                     <Label className="flex items-center gap-1.5"><Building2 className="h-3.5 w-3.5 text-slate-400" /> Setor</Label>
-                    <Input required list="meus-dados-setores" value={setor} onChange={(e) => setSetor(e.target.value)} placeholder="Ex: Saúde, Obras..." />
-                    <datalist id="meus-dados-setores">
-                      {setores.map((s) => <option key={s} value={s} />)}
-                    </datalist>
+                    <SelectSetor value={setor} onChange={setSetor} />
                   </div>
                 </div>
 

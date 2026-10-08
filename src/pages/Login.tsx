@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,6 +8,8 @@ import { CheckCircle2, Circle, Eye, EyeOff, Loader2 } from "lucide-react";
 import "./Login.css"
 import logo from "/public/logotipobvm.png"
 import { api } from "@/services/api";
+import SelectSetor from "@/components/SelectSetor";
+import { setorOficial } from "@/lib/setores";
 
 // Troca obrigatória da senha padrão (Mudar123) no primeiro acesso.
 // Desativada durante os testes: mude para true para voltar a exigir.
@@ -58,13 +60,6 @@ export default function Login() {
     const [cadSetor, setCadSetor] = useState("");
     const [cadSenha, setCadSenha] = useState("");
     const [cadConfirmacao, setCadConfirmacao] = useState("");
-    const [setores, setSetores] = useState<string[]>([]);
-
-    useEffect(() => {
-      if (modo === "cadastrar" && setores.length === 0) {
-        api.get<string[]>("/setores/").then(({ data }) => setSetores(data)).catch(() => {});
-      }
-    }, [modo, setores.length]);
 
     const trocarModo = (novo: "entrar" | "cadastrar") => {
       setModo(novo);
@@ -114,7 +109,7 @@ export default function Login() {
       senha: cadSenha.length >= 6,
       confere: cadSenha !== "" && cadSenha === cadConfirmacao,
     };
-    const podeCadastrar = regras.matricula && regras.senha && regras.confere && cadSetor.trim() !== "";
+    const podeCadastrar = regras.matricula && regras.senha && regras.confere && setorOficial(cadSetor) !== null;
 
     const handleCadastro = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -228,18 +223,7 @@ export default function Login() {
               </div>
               <div className="login-field">
                 <Label htmlFor="cad-setor" className="login-label">Setor</Label>
-                <Input
-                  id="cad-setor"
-                  list="setores-cadastro-login"
-                  placeholder="Ex: Saúde, Educação, Obras..."
-                  required
-                  value={cadSetor}
-                  onChange={(e) => setCadSetor(e.target.value)}
-                  className="bg-white"
-                />
-                <datalist id="setores-cadastro-login">
-                  {setores.map((s) => <option key={s} value={s} />)}
-                </datalist>
+                <SelectSetor id="cad-setor" value={cadSetor} onChange={setCadSetor} />
               </div>
               <div className="login-field">
                 <Label htmlFor="cad-senha" className="login-label">Senha</Label>
