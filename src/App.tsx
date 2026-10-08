@@ -7,6 +7,8 @@ import TodosChamados from "./pages/TodosChamados"
 import Layout from "./components/Layout"
 import GerenciarUsuarios from "./pages/GerenciarUsuarios";
 import AlterarSenha from "./pages/AlterarSenha";
+import MeusChamados from "./pages/MeusChamados";
+import MeusDados from "./pages/MeusDados";
 
 function App() {
   return (
@@ -20,6 +22,8 @@ function App() {
           <Route path="/todos-chamados" element={<TodosChamados />} />
           <Route path="/usuarios" element={<GerenciarUsuarios />} />
           <Route path="/alterar-senha" element={<AlterarSenha />} />
+          <Route path="/meus-chamados" element={<MeusChamados />} />
+          <Route path="/meus-dados" element={<MeusDados />} />
         </Route>
         
       </Routes>

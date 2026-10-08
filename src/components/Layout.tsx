@@ -1,6 +1,7 @@
+import { useEffect, useState } from "react"
 import { Navigate, Outlet, useLocation, useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
-import { KeyRound, LayoutDashboard, List, LogOut, Plus, User, Users } from "lucide-react"
+import { ClipboardList, LayoutDashboard, List, LogOut, Plus, User, UserRound, Users } from "lucide-react"
 import "./Layout.css"
 import { formatarNome } from "@/lib/utils"
 import { useNotificacoesChamados } from "@/hooks/useNotificacoesChamados"
@@ -11,6 +12,14 @@ export default function Layout() {
     const location = useLocation()
 
     const path = location.pathname
+
+    // Relê o usuário quando ele atualiza os próprios dados em "Meus Dados"
+    const [, setAtualizacao] = useState(0);
+    useEffect(() => {
+        const aoAtualizar = () => setAtualizacao((n) => n + 1);
+        window.addEventListener("usuario-atualizado", aoAtualizar);
+        return () => window.removeEventListener("usuario-atualizado", aoAtualizar);
+    }, []);
 
     const usuarioStorage = localStorage.getItem("usuarioLogado");
     const usuario = usuarioStorage ? JSON.parse(usuarioStorage) : null;
@@ -122,10 +131,17 @@ export default function Layout() {
                         </div>
                     )}
 
-                    <div className={`nav-item ${path === '/alterar-senha' ? 'active' : ''}`} onClick={() => navigate("/alterar-senha")}>
+                    <div className={`nav-item ${path === '/meus-chamados' ? 'active' : ''}`} onClick={() => navigate("/meus-chamados")}>
                         <div className="nav-content">
-                            <KeyRound className="nav-icon" />
-                            <span className="nav-text">Alterar Senha</span>
+                            <ClipboardList className="nav-icon" />
+                            <span className="nav-text">Meus Chamados</span>
+                        </div>
+                    </div>
+
+                    <div className={`nav-item ${path === '/meus-dados' || path === '/alterar-senha' ? 'active' : ''}`} onClick={() => navigate("/meus-dados")}>
+                        <div className="nav-content">
+                            <UserRound className="nav-icon" />
+                            <span className="nav-text">Meus Dados</span>
                         </div>
                     </div>
 

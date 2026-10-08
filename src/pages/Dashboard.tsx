@@ -74,7 +74,7 @@ export default function Dashboard() {
   const atualizacaoPendente = useRef(false);
   const [versaoDados, setVersaoDados] = useState(0);
 
-  const { ultimaSincronizacao, conectado } = useSincronizacaoChamados(() => {
+  const { conectado } = useSincronizacaoChamados(() => {
     // Não mexe no quadro no meio de um "arrastar e soltar"
     if (arrastando.current) {
       atualizacaoPendente.current = true;
@@ -338,21 +338,7 @@ export default function Dashboard() {
         <div className="dashboard-title-wrap">
           <h2 className="dashboard-title">Dashboard</h2>
           <p className="dashboard-subtitle">Visão geral dos chamados do departamento de TI</p>
-          {conectado ? (
-            <span className="mt-2 inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-0.5 text-xs font-medium text-emerald-700"
-              title="O quadro se atualiza sozinho quando alguém faz uma alteração">
-              <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
-              </span>
-              Ao vivo
-              {ultimaSincronizacao && (
-                <span className="text-emerald-600/70">
-                  · {ultimaSincronizacao.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
-                </span>
-              )}
-            </span>
-          ) : (
+          {!conectado && (
             <span className="mt-2 inline-flex items-center gap-2 rounded-full border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-xs font-medium text-amber-700">
               <WifiOff className="h-3 w-3" /> Sem conexão · tentando novamente
             </span>

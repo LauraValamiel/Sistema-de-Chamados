@@ -50,7 +50,8 @@ function Regra({ ok, texto }: { ok: boolean; texto: string }) {
   )
 }
 
-export default function AlterarSenha() {
+// embutido = true: mostra só o cartão (usado dentro da tela "Meus Dados")
+export default function AlterarSenha({ embutido = false }: { embutido?: boolean }) {
   const navigate = useNavigate()
   const usuarioStorage = localStorage.getItem("usuarioLogado")
   const usuario = usuarioStorage ? JSON.parse(usuarioStorage) : null
@@ -132,24 +133,7 @@ export default function AlterarSenha() {
     navigate(privilegiado ? "/dashboard" : "/novo-chamado")
   }
 
-  return (
-    <main className="p-8 w-full max-w-xl mx-auto space-y-6">
-      <div>
-        <h2 className="text-3xl font-bold text-slate-800 tracking-tight">Alterar Senha</h2>
-        <p className="text-slate-500 mt-1">Defina uma nova senha para acessar o sistema.</p>
-      </div>
-
-      {trocaObrigatoria && !sucesso && (
-        <div className="flex gap-3 rounded-lg border border-amber-300 bg-amber-50 p-4 text-amber-800">
-          <AlertTriangle className="h-5 w-5 shrink-0 mt-0.5" />
-          <div className="text-sm">
-            <p className="font-semibold">Troca de senha obrigatória</p>
-            <p>Você está usando a senha padrão. Para sua segurança, crie uma senha pessoal antes de continuar.</p>
-          </div>
-        </div>
-      )}
-
-      {sucesso ? (
+  const cartao = sucesso ? (
         <Card className="shadow-sm border-emerald-200">
           <CardContent className="p-8 text-center space-y-4">
             <CheckCircle2 className="h-12 w-12 text-emerald-500 mx-auto" />
@@ -157,7 +141,11 @@ export default function AlterarSenha() {
               <h3 className="text-lg font-semibold text-slate-800">Senha alterada com sucesso!</h3>
               <p className="text-slate-500 text-sm mt-1">Use a nova senha no seu próximo acesso.</p>
             </div>
-            <Button onClick={irParaInicio} className="bg-blue-600 hover:bg-blue-700">Continuar</Button>
+            {embutido ? (
+              <Button variant="outline" onClick={() => setSucesso(false)}>Alterar novamente</Button>
+            ) : (
+              <Button onClick={irParaInicio} className="bg-blue-600 hover:bg-blue-700">Continuar</Button>
+            )}
           </CardContent>
         </Card>
       ) : (
@@ -198,7 +186,28 @@ export default function AlterarSenha() {
             </form>
           </CardContent>
         </Card>
+      )
+
+  if (embutido) return cartao
+
+  return (
+    <main className="p-8 w-full max-w-xl mx-auto space-y-6">
+      <div>
+        <h2 className="text-3xl font-bold text-slate-800 tracking-tight">Alterar Senha</h2>
+        <p className="text-slate-500 mt-1">Defina uma nova senha para acessar o sistema.</p>
+      </div>
+
+      {trocaObrigatoria && !sucesso && (
+        <div className="flex gap-3 rounded-lg border border-amber-300 bg-amber-50 p-4 text-amber-800">
+          <AlertTriangle className="h-5 w-5 shrink-0 mt-0.5" />
+          <div className="text-sm">
+            <p className="font-semibold">Troca de senha obrigatória</p>
+            <p>Você está usando a senha padrão. Para sua segurança, crie uma senha pessoal antes de continuar.</p>
+          </div>
+        </div>
       )}
+
+      {cartao}
     </main>
   )
 }
