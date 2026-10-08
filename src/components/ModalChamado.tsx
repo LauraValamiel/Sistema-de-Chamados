@@ -58,10 +58,9 @@ function infoStatus(status?: string) {
     return { rotulo: "Em Andamento", classe: "bg-blue-100 text-blue-700", finalizado: false, aberto: false }
   if (s.includes("aguardando"))
     return { rotulo: "Aguardando", classe: "bg-amber-100 text-amber-700", finalizado: false, aberto: false }
-  if (s.includes("resolvid"))
+  // "Fechado" não existe mais: chamados antigos com esse status aparecem como Resolvido
+  if (s.includes("resolvid") || s.includes("fechad"))
     return { rotulo: "Resolvido", classe: "bg-emerald-100 text-emerald-700", finalizado: true, aberto: false }
-  if (s.includes("fechad"))
-    return { rotulo: "Fechado", classe: "bg-slate-200 text-slate-700", finalizado: true, aberto: false }
   return { rotulo: "Aberto", classe: "bg-red-100 text-red-700", finalizado: false, aberto: true }
 }
 

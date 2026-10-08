@@ -22,7 +22,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { ArrowUpDown, AlertTriangle, GitPullRequest, Clock3, CheckCircle2, User, CalendarDays, UserPlus, ChevronDown, WifiOff } from "lucide-react"
+import { ArrowUpDown, AlertTriangle, GitPullRequest, Clock3, CheckCircle2, User, CalendarDays, Play, Loader2, WifiOff } from "lucide-react"
 import { formatarNome } from "@/lib/utils"  
 
 // Tipagem do Chamado (Agora adaptada para o que deve vir do banco)
@@ -53,8 +53,7 @@ const colunasVazias: ColunasType = {
   abertos: { titulo: "Abertos", corDot: "bg-red-500", items: [] },
   em_atendimento: { titulo: "Em Atendimento", corDot: "bg-blue-500", items: [] },
   aguardando: { titulo: "Aguardando", corDot: "bg-amber-400", items: [] },
-  resolvidos: { titulo: "Resolvidos", corDot: "bg-emerald-500", items: [] },
-  fechados: { titulo: "Fechados", corDot: "bg-slate-500", items: [] }
+  resolvidos: { titulo: "Resolvidos", corDot: "bg-emerald-500", items: [] }
 }
 
 export default function Dashboard() {
@@ -122,19 +121,24 @@ export default function Dashboard() {
     }
   }
 
-  const atribuirChamado = async (idChamado: string, idTecnico: number) => {
+  // "Iniciar chamado": quem clicou assume o chamado e ele vai para Em Atendimento
+  const [iniciando, setIniciando] = useState<string | null>(null);
 
-    if (!idTecnico) {
-      alert("Erro: ID do técnico não encontrado. Verifique se o usuário existe.");
+  const iniciarChamado = async (idChamado: string) => {
+    if (!usuarioLogado?.id) {
+      alert("Erro: usuário não identificado. Faça login novamente.");
       return;
-
     }
 
+    setIniciando(idChamado);
     try {
-      await api.patch(`/chamados/${idChamado}`, { id_tecnico: idTecnico });
-      carregarChamados();
+      await api.patch(`/chamados/${idChamado}`, { id_tecnico: usuarioLogado.id });
+      await carregarChamados(true);
     } catch (error) {
-      console.error("Erro ao atribuir chamado:", error);
+      console.error("Erro ao iniciar chamado:", error);
+      alert("Não foi possível iniciar o chamado. Tente novamente.");
+    } finally {
+      setIniciando(null);
     }
   }
 
@@ -176,10 +180,9 @@ export default function Dashboard() {
           novasColunas.em_atendimento.items.push(chamadoFormatado);
         } else if (statusBanco.includes('aguardando')) {
           novasColunas.aguardando.items.push(chamadoFormatado);
-        } else if (statusBanco.includes('resolvido')) {
+        } else if (statusBanco.includes('resolvido') || statusBanco.includes('fechado')) {
+          // "Fechado" não existe mais: chamados antigos com esse status aparecem em Resolvidos
           novasColunas.resolvidos.items.push(chamadoFormatado);
-        } else if (statusBanco.includes('fechado')) {
-          novasColunas.fechados.items.push(chamadoFormatado);
         } else {
           novasColunas.abertos.items.push(chamadoFormatado);
         }
@@ -296,8 +299,7 @@ export default function Dashboard() {
         abertos: 'Aberto',
         em_atendimento: 'Em Andamento',
         aguardando: 'Aguardando',
-        resolvidos: 'Resolvido',
-        fechados: 'Fechado'
+        resolvidos: 'Resolvido'
       };
 
       // Manda a requisição PATCH para o seu backend
@@ -477,51 +479,19 @@ export default function Dashboard() {
                                   <div className="kanban-card-info-item"><CalendarDays className="kanban-card-info-icon" />{chamado.data_abertura}</div>
                                 </div>
                                 <div className="kanban-card-footer flex justify-between items-center" onClick={(e) => e.stopPropagation()}>
-                                  {chamado.tecnico_responsavel && chamado.tecnico_responsavel !== "Técnico não atribuído" ? (
-                                    <>
-                                      <div className="kanban-card-tech-wrap">Técnico: <br /><span className="kanban-card-tech-name">{chamado.tecnico_responsavel}</span></div>
-                                      
-                                      <DropdownMenu>
-                                        <DropdownMenuTrigger asChild>
-                                          <Button variant="ghost" className="h-8 w-8 p-0">
-                                            <ChevronDown className="h-4 w-4 text-slate-400 hover:text-slate-700" />
-                                          </Button>
-                                        </DropdownMenuTrigger>
-                                        <DropdownMenuContent align="end">
-                                          <div className="px-2 py-1 text-xs font-semibold text-slate-500">Transferir para:</div>
-                                          {tecnicos.map(t => (
-                                            <DropdownMenuItem key={t.id} onClick={() => atribuirChamado(chamado.id, t.id)} className="cursor-pointer">
-                                              {formatarNome(t.nome)}
-                                            </DropdownMenuItem>
-                                          ))}
-                                        </DropdownMenuContent>
-                                      </DropdownMenu>
-                                    </>
+                                  {chamado.tecnico_responsavel ? (
+                                    <div className="kanban-card-tech-wrap">Técnico: <br /><span className="kanban-card-tech-name">{chamado.tecnico_responsavel}</span></div>
                                   ) : (
-                                    <div className="flex gap-2 w-full">
-                                      <Button 
-                                        className="kanban-card-btn flex-1" 
-                                        onClick={() => atribuirChamado(chamado.id, usuarioLogado?.id)}
-                                      >
-                                        <UserPlus className="kanban-card-btn-icon" /> Atribuir a mim
-                                      </Button>
-                                      
-                                      <DropdownMenu>
-                                        <DropdownMenuTrigger asChild>
-                                          <Button variant="outline" className="h-8 px-2 border-slate-200">
-                                            <ChevronDown className="h-4 w-4 text-slate-500" />
-                                          </Button>
-                                        </DropdownMenuTrigger>
-                                        <DropdownMenuContent align="end">
-                                          <div className="px-2 py-1 text-xs font-semibold text-slate-500">Atribuir para:</div>
-                                          {tecnicos.map(t => (
-                                            <DropdownMenuItem key={t.id} onClick={() => atribuirChamado(chamado.id, t.id)} className="cursor-pointer">
-                                              {formatarNome(t.nome)}
-                                            </DropdownMenuItem>
-                                          ))}
-                                        </DropdownMenuContent>
-                                      </DropdownMenu>
-                                    </div>
+                                    <Button
+                                      className="kanban-card-btn w-full bg-emerald-600 hover:bg-emerald-700"
+                                      disabled={iniciando === chamado.id}
+                                      onClick={() => iniciarChamado(chamado.id)}
+                                    >
+                                      {iniciando === chamado.id
+                                        ? <Loader2 className="kanban-card-btn-icon animate-spin" />
+                                        : <Play className="kanban-card-btn-icon" />}
+                                      {iniciando === chamado.id ? "Iniciando..." : "Iniciar chamado"}
+                                    </Button>
                                   )}
                                 </div>
                               </div>

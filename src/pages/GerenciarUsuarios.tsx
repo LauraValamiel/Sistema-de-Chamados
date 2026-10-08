@@ -6,8 +6,9 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { UserPlus, Trash2, Pencil, X, Search, SearchX, FilterX } from "lucide-react";
+import { UserPlus, Trash2, Pencil, X, Search, SearchX, FilterX, CheckCircle2 } from "lucide-react";
 import { formatarNome } from "@/lib/utils";
+import ModalEditarUsuario, { type UsuarioEditavel } from "@/components/ModalEditarUsuario";
 
 // Remove acentos e deixa minúsculo, para a busca achar "joao" em "JOÃO"
 const normalizar = (texto: unknown) =>
@@ -32,11 +33,14 @@ export default function GerenciarUsuarios() {
   const [filtroPerfil, setFiltroPerfil] = useState<string>("todos");
   const [filtroSetor, setFiltroSetor] = useState<string>("todos");
 
-  const [usuarioEditando, setUsuarioEditando] = useState<number | null>(null);
-  
-  // Estados do formulário
+  // Usuário aberto na janela de edição
+  const [usuarioEditando, setUsuarioEditando] = useState<UsuarioEditavel | null>(null);
+  const [aviso, setAviso] = useState("");
+
+  // Estados do formulário de cadastro
   const [nome, setNome] = useState("");
   const [matricula, setMatricula] = useState("");
+  const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [setor, setSetor] = useState("Geral");
   const [perfil, setPerfil] = useState("solicitante");
@@ -82,6 +86,7 @@ export default function GerenciarUsuarios() {
           !termo ||
           normalizar(u.nome).includes(termo) ||
           normalizar(u.matricula).includes(termo) ||
+          normalizar(u.email).includes(termo) ||
           normalizar(u.setor).includes(termo);
         const batePerfil = filtroPerfil === "todos" || (u.perfil || "").toLowerCase() === filtroPerfil;
         const bateSetor = filtroSetor === "todos" || (u.setor || "").trim() === filtroSetor;
@@ -99,62 +104,38 @@ export default function GerenciarUsuarios() {
   };
 
   const limparFormulario = () => {
-    setUsuarioEditando(null);
     setNome("");
     setMatricula("");
+    setEmail("");
     setSenha("");
     setSetor("Geral");
     setPerfil("solicitante");
   };
 
-  const handleEditarUsuario = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (usuarioEditando ) {
-        try {
-            const dadosAtualizados: any = {
-                nome: nome.toUpperCase(),
-                setor: setor,
-                perfil: perfil,
-            };
-
-            if (senha) {
-                dadosAtualizados.senha = senha;
-            }
-
-            await api.put(`/usuarios/${usuarioEditando}`, dadosAtualizados);
-            alert("✅ Usuário atualizado com sucesso!");
-            limparFormulario();
-            carregarUsuarios();
-        } catch (error) {
-            alert("❌ Erro ao atualizar usuário.");
-        }
-    } else {
-        try {
-            await api.post("/usuarios/", {
-            nome: nome.toUpperCase(),
-            matricula: matricula,
-            senha: senha,
-            setor: setor,
-            perfil: perfil,
-            email: `${matricula}@belavistademinas.mg.gov.br`
-            });
-            
-            alert("✅ Usuário cadastrado com sucesso!");
-            limparFormulario();
-            carregarUsuarios();
-        } catch (error: any) {
-            alert("❌ Erro ao cadastrar. Verifique se a matrícula já existe no sistema.");
-        }
-    }
+  const mostrarAviso = (texto: string) => {
+    setAviso(texto);
+    setTimeout(() => setAviso(""), 4000);
   };
 
-  const handleEditarClique = (usuario: any) => {
-    setUsuarioEditando(usuario.id);
-    setNome(usuario.nome);
-    setMatricula(usuario.matricula);
-    setSetor(usuario.setor);
-    setPerfil(usuario.perfil);
+  const handleCriarUsuario = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await api.post("/usuarios/", {
+        nome: nome.trim().toUpperCase(),
+        matricula: matricula.trim(),
+        senha: senha,
+        setor: setor.trim(),
+        perfil: perfil,
+        // Se o e-mail não for informado, usa o padrão da prefeitura
+        email: (email.trim() || `${matricula.trim()}@belavistademinas.mg.gov.br`).toLowerCase(),
+      });
+      limparFormulario();
+      carregarUsuarios();
+      mostrarAviso("Usuário cadastrado com sucesso.");
+    } catch (error: any) {
+      const detalhe = error.response?.data?.detail;
+      alert("❌ " + (typeof detalhe === "string" ? detalhe : "Erro ao cadastrar. Verifique os dados."));
+    }
   };
 
   const handleDeletarUsuario = async (id: number) => {
@@ -172,42 +153,48 @@ export default function GerenciarUsuarios() {
     <main className="p-8 w-full max-w-7xl mx-auto space-y-8">
       <div>
         <h2 className="text-3xl font-bold text-slate-800 tracking-tight">Gerenciar Usuários</h2>
-        <p className="text-slate-500 mt-1">Adicione ou remova o acesso de servidores e técnicos ao sistema.</p>
+        <p className="text-slate-500 mt-1">Adicione, edite ou remova o acesso de servidores e técnicos ao sistema.</p>
+        {aviso && (
+          <div className="mt-3 inline-flex items-center gap-2 rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm font-medium text-emerald-700">
+            <CheckCircle2 className="h-4 w-4" /> {aviso}
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Formulário de Cadastro/Edição */}
-        <Card className={`lg:col-span-1 shadow-sm border-slate-200 h-fit transition-colors ${usuarioEditando ? 'border-amber-400 shadow-amber-100' : ''}`}>
-          <CardHeader className={`${usuarioEditando ? 'bg-amber-50' : 'bg-slate-50/50'} border-b border-slate-100 pb-4`}>
-            <CardTitle className="text-lg text-slate-700 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                {usuarioEditando ? <Pencil className="h-5 w-5 text-amber-600" /> : <UserPlus className="h-5 w-5 text-blue-600" />}
-                {usuarioEditando ? "Editar Usuário" : "Novo Usuário"}
-              </div>
-              {usuarioEditando && (
-                <Button variant="ghost" size="sm" type="button" onClick={limparFormulario} className="h-8 w-8 p-0 text-slate-500 hover:text-slate-800">
-                  <X className="h-4 w-4" />
-                </Button>
-              )}
+        {/* Formulário de Cadastro */}
+        <Card className="lg:col-span-1 shadow-sm border-slate-200 h-fit">
+          <CardHeader className="bg-slate-50/50 border-b border-slate-100 pb-4">
+            <CardTitle className="text-lg text-slate-700 flex items-center gap-2">
+              <UserPlus className="h-5 w-5 text-blue-600" />
+              Novo Usuário
             </CardTitle>
           </CardHeader>
           <CardContent className="p-5">
-            <form onSubmit={handleEditarUsuario} className="space-y-4">
+            <form onSubmit={handleCriarUsuario} className="space-y-4">
               <div className="space-y-2">
                 <Label>Nome Completo</Label>
                 <Input required value={nome} onChange={(e) => setNome(e.target.value)} placeholder="Ex: João da Silva" />
               </div>
               <div className="space-y-2">
                 <Label>Matrícula</Label>
-                <Input required type="number" disabled={usuarioEditando !== null} value={matricula} onChange={(e) => setMatricula(e.target.value)} placeholder="Ex: 12345" className={usuarioEditando ? 'bg-slate-100 cursor-not-allowed' : ''} />
+                <Input required inputMode="numeric" value={matricula} onChange={(e) => setMatricula(e.target.value)} placeholder="Ex: 12345" />
               </div>
               <div className="space-y-2">
-                <Label>{usuarioEditando ? 'Nova Senha (opcional)' : 'Senha'}</Label>
-                <Input required={!usuarioEditando} type="password" value={senha} onChange={(e) => setSenha(e.target.value)} placeholder={usuarioEditando ? 'Digite para alterar...' : 'Defina uma senha'} />
+                <Label>E-mail <span className="font-normal text-slate-400">(opcional)</span></Label>
+                <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)}
+                  placeholder={matricula ? `${matricula}@belavistademinas.mg.gov.br` : "matricula@belavistademinas.mg.gov.br"} />
+              </div>
+              <div className="space-y-2">
+                <Label>Senha</Label>
+                <Input required type="password" value={senha} onChange={(e) => setSenha(e.target.value)} placeholder="Defina uma senha" autoComplete="new-password" />
               </div>
               <div className="space-y-2">
                 <Label>Setor</Label>
-                <Input required value={setor} onChange={(e) => setSetor(e.target.value)} placeholder="Ex: Geral, Saúde, Obras..." />
+                <Input required list="setores-cadastro" value={setor} onChange={(e) => setSetor(e.target.value)} placeholder="Ex: Geral, Saúde, Obras..." />
+                <datalist id="setores-cadastro">
+                  {setores.map((s) => <option key={s} value={s} />)}
+                </datalist>
               </div>
               <div className="space-y-2">
                 <Label>Nível de Acesso (Perfil)</Label>
@@ -220,8 +207,8 @@ export default function GerenciarUsuarios() {
                   </SelectContent>
                 </Select>
               </div>
-              <Button type="submit" className={`w-full mt-2 ${usuarioEditando ? 'bg-amber-600 hover:bg-amber-700' : 'bg-blue-600 hover:bg-blue-700'}`}>
-                {usuarioEditando ? "Salvar Alterações" : "Cadastrar Usuário"}
+              <Button type="submit" className="w-full mt-2 bg-blue-600 hover:bg-blue-700">
+                Cadastrar Usuário
               </Button>
             </form>
           </CardContent>
@@ -237,7 +224,7 @@ export default function GerenciarUsuarios() {
                 <Input
                   value={busca}
                   onChange={(e) => setBusca(e.target.value)}
-                  placeholder="Buscar por nome, matrícula ou setor..."
+                  placeholder="Buscar por nome, matrícula, e-mail ou setor..."
                   className="bg-white pl-9 pr-9"
                   aria-label="Buscar usuário"
                 />
@@ -332,7 +319,10 @@ export default function GerenciarUsuarios() {
                 )}
                 {usuariosFiltrados.map((u) => (
                   <TableRow key={u.id}>
-                    <TableCell className="font-medium text-slate-700">{formatarNome(u.nome)}</TableCell>
+                    <TableCell>
+                      <div className="font-medium text-slate-700">{formatarNome(u.nome)}</div>
+                      <div className="text-xs text-slate-400">{u.email}</div>
+                    </TableCell>
                     <TableCell className="text-slate-500">{u.matricula}</TableCell>
                     <TableCell className="text-slate-500">{u.setor}</TableCell>
                     <TableCell>
@@ -345,7 +335,7 @@ export default function GerenciarUsuarios() {
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-1">
-                        <Button variant="ghost" size="sm" type="button" onClick={() => handleEditarClique(u)} className="text-slate-500 hover:text-amber-600 hover:bg-amber-50">
+                        <Button variant="ghost" size="sm" type="button" onClick={() => setUsuarioEditando(u)} title="Editar dados" className="text-slate-500 hover:text-amber-600 hover:bg-amber-50">
                           <Pencil className="h-4 w-4" />
                         </Button>
                         <Button variant="ghost" size="sm" type="button" onClick={() => handleDeletarUsuario(u.id)} className="text-red-500 hover:text-red-700 hover:bg-red-50">
@@ -360,6 +350,19 @@ export default function GerenciarUsuarios() {
           </CardContent>
         </Card>
       </div>
+
+      {usuarioEditando && (
+        <ModalEditarUsuario
+          usuario={usuarioEditando}
+          setores={setores}
+          onFechar={() => setUsuarioEditando(null)}
+          onSalvo={() => {
+            setUsuarioEditando(null);
+            carregarUsuarios();
+            mostrarAviso("Dados do usuário atualizados.");
+          }}
+        />
+      )}
     </main>
   );
 }
