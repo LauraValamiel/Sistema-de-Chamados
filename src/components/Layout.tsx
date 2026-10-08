@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button"
 import { KeyRound, LayoutDashboard, List, LogOut, Plus, User, Users } from "lucide-react"
 import "./Layout.css"
 import { formatarNome } from "@/lib/utils"
+import { useNotificacoesChamados } from "@/hooks/useNotificacoesChamados"
+import { SinoNotificacoes, ToastsChamados } from "@/components/Notificacoes"
 
 export default function Layout() {
     const navigate = useNavigate()
@@ -12,6 +14,11 @@ export default function Layout() {
 
     const usuarioStorage = localStorage.getItem("usuarioLogado");
     const usuario = usuarioStorage ? JSON.parse(usuarioStorage) : null;
+
+    // Notificações de novos chamados (só para admin e técnico)
+    const recebeNotificacoes =
+        !!usuario && !usuario.precisaTrocarSenha && (usuario.perfil === "admin" || usuario.perfil === "tecnico");
+    const notif = useNotificacoesChamados(usuario?.id, recebeNotificacoes);
 
     if (!usuario) {
         return <Navigate to="/login" replace />
@@ -51,6 +58,17 @@ export default function Layout() {
                         </div>
                     </div>
                     <div className="header-profile">
+                        {recebeNotificacoes && (
+                            <SinoNotificacoes
+                                notificacoes={notif.notificacoes}
+                                naoLidas={notif.naoLidas}
+                                permissao={notif.permissao}
+                                onMarcarLida={notif.marcarComoLida}
+                                onMarcarTodas={notif.marcarTodasComoLidas}
+                                onLimpar={notif.limparTodas}
+                                onPedirPermissao={notif.pedirPermissao}
+                            />
+                        )}
                         <div className="flex items-center gap-2">
                             <div className="header-avatar">
                                 <User className="h-4 w-4" />
@@ -124,6 +142,17 @@ export default function Layout() {
             </nav>
 
             <Outlet />
+
+            {recebeNotificacoes && (
+                <ToastsChamados
+                    toasts={notif.toasts}
+                    onFechar={notif.fecharToast}
+                    onAbrir={(id) => {
+                        notif.marcarComoLida(id)
+                        navigate("/dashboard")
+                    }}
+                />
+            )}
         </div>
     )
 

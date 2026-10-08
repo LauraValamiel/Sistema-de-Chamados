@@ -31,7 +31,11 @@ export default function TodosChamados() {
   const [prioridadeFiltro, setPrioridadeFiltro] = useState("todas")
 
   useEffect(() => {
-    api.get("/chamados/").then((res) => setChamados(res.data))
+    const carregar = () => api.get("/chamados/").then((res) => setChamados(res.data)).catch(() => {})
+    carregar()
+    // Atualiza a lista sozinha quando chega um chamado novo
+    window.addEventListener("novo-chamado", carregar)
+    return () => window.removeEventListener("novo-chamado", carregar)
   }, [])
 
   // Lógica de Filtro combinada

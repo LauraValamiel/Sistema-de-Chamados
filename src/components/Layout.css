@@ -199,3 +199,32 @@
   justify-center 
   items-center;
 }
+
+/* --- Notificações --- */
+@keyframes sino-balanco {
+  0%, 100% { transform: rotate(0); }
+  20% { transform: rotate(14deg); }
+  40% { transform: rotate(-12deg); }
+  60% { transform: rotate(8deg); }
+  80% { transform: rotate(-4deg); }
+}
+.sino-balanco {
+  animation: sino-balanco 1s ease-in-out 2;
+  transform-origin: top center;
+}
+
+@keyframes notif-painel {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.notif-painel {
+  animation: notif-painel 150ms ease-out;
+}
+
+@keyframes notif-toast {
+  from { opacity: 0; transform: translateX(32px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+.notif-toast {
+  animation: notif-toast 300ms ease-out;
+}

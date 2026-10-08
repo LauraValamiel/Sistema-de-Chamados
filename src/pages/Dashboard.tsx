@@ -72,6 +72,12 @@ export default function Dashboard() {
     carregarTecnicos();
   }, []);
 
+  useEffect(() => {
+    const aoChegarChamado = () => carregarChamados(true);
+    window.addEventListener("novo-chamado", aoChegarChamado);
+    return () => window.removeEventListener("novo-chamado", aoChegarChamado);
+  }, [sortBy]);
+
   const carregarTecnicos = async () => {
     try {
       const response = await api.get('/usuarios/');
@@ -110,9 +116,9 @@ export default function Dashboard() {
     }
   }
 
-  const carregarChamados = async () => {
+   const carregarChamados = async (silencioso = false) => {
     try {
-      setCarregando(true);
+      if (!silencioso) setCarregando(true);
       // Chama a rota do seu backend
       const response = await api.get('/chamados/');
       const chamadosDoBanco = response.data;

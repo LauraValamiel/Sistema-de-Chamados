@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { api } from "@/services/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,11 +6,31 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { UserPlus, Trash2, Pencil, X } from "lucide-react";
+import { UserPlus, Trash2, Pencil, X, Search, SearchX, FilterX } from "lucide-react";
 import { formatarNome } from "@/lib/utils";
+
+// Remove acentos e deixa minúsculo, para a busca achar "joao" em "JOÃO"
+const normalizar = (texto: unknown) =>
+  String(texto ?? "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
+
+const FILTROS_PERFIL = [
+  { valor: "todos", rotulo: "Todos" },
+  { valor: "solicitante", rotulo: "Solicitantes" },
+  { valor: "tecnico", rotulo: "Técnicos" },
+  { valor: "admin", rotulo: "Admins" },
+] as const;
 
 export default function GerenciarUsuarios() {
   const [usuarios, setUsuarios] = useState<any[]>([]);
+
+  // Busca e filtros da tabela
+  const [busca, setBusca] = useState("");
+  const [filtroPerfil, setFiltroPerfil] = useState<string>("todos");
+  const [filtroSetor, setFiltroSetor] = useState<string>("todos");
 
   const [usuarioEditando, setUsuarioEditando] = useState<number | null>(null);
   
@@ -32,6 +52,50 @@ export default function GerenciarUsuarios() {
     } catch (error) {
       console.error("Erro ao carregar usuários:", error);
     }
+  };
+
+  // Setores existentes (para o filtro), em ordem alfabética
+  const setores = useMemo(
+    () =>
+      Array.from(new Set(usuarios.map((u) => (u.setor || "").trim()).filter(Boolean))).sort((a, b) =>
+        a.localeCompare(b, "pt-BR")
+      ),
+    [usuarios]
+  );
+
+  // Quantidade de usuários por perfil (mostrada nos botões de filtro)
+  const contagemPerfil = useMemo(() => {
+    const c: Record<string, number> = { todos: usuarios.length, solicitante: 0, tecnico: 0, admin: 0 };
+    usuarios.forEach((u) => {
+      const p = (u.perfil || "").toLowerCase();
+      if (p in c) c[p]++;
+    });
+    return c;
+  }, [usuarios]);
+
+  // Lista filtrada e em ordem alfabética
+  const usuariosFiltrados = useMemo(() => {
+    const termo = normalizar(busca);
+    return usuarios
+      .filter((u) => {
+        const bateBusca =
+          !termo ||
+          normalizar(u.nome).includes(termo) ||
+          normalizar(u.matricula).includes(termo) ||
+          normalizar(u.setor).includes(termo);
+        const batePerfil = filtroPerfil === "todos" || (u.perfil || "").toLowerCase() === filtroPerfil;
+        const bateSetor = filtroSetor === "todos" || (u.setor || "").trim() === filtroSetor;
+        return bateBusca && batePerfil && bateSetor;
+      })
+      .sort((a, b) => String(a.nome).localeCompare(String(b.nome), "pt-BR"));
+  }, [usuarios, busca, filtroPerfil, filtroSetor]);
+
+  const temFiltroAtivo = busca !== "" || filtroPerfil !== "todos" || filtroSetor !== "todos";
+
+  const limparFiltros = () => {
+    setBusca("");
+    setFiltroPerfil("todos");
+    setFiltroSetor("todos");
   };
 
   const limparFormulario = () => {
@@ -164,10 +228,83 @@ export default function GerenciarUsuarios() {
         </Card>
 
         {/* Tabela de Usuários */}
-        <Card className="lg:col-span-2 shadow-sm border-slate-200">
+        <Card className="lg:col-span-2 shadow-sm border-slate-200 overflow-hidden">
+          {/* Barra de busca e filtros */}
+          <div className="border-b border-slate-100 bg-slate-50/60 p-4 space-y-3">
+            <div className="flex flex-col sm:flex-row gap-3">
+              <div className="relative flex-1">
+                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                <Input
+                  value={busca}
+                  onChange={(e) => setBusca(e.target.value)}
+                  placeholder="Buscar por nome, matrícula ou setor..."
+                  className="bg-white pl-9 pr-9"
+                  aria-label="Buscar usuário"
+                />
+                {busca && (
+                  <button
+                    type="button"
+                    onClick={() => setBusca("")}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-slate-400 hover:text-slate-700"
+                    aria-label="Limpar busca"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                )}
+              </div>
+              <Select value={filtroSetor} onValueChange={setFiltroSetor}>
+                <SelectTrigger className="sm:w-52 bg-white">
+                  <SelectValue placeholder="Setor" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="todos">Todos os setores</SelectItem>
+                  {setores.map((s) => (
+                    <SelectItem key={s} value={s}>{s}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div className="flex flex-wrap gap-2">
+                {FILTROS_PERFIL.map((f) => {
+                  const ativo = filtroPerfil === f.valor;
+                  return (
+                    <button
+                      key={f.valor}
+                      type="button"
+                      onClick={() => setFiltroPerfil(f.valor)}
+                      className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold transition ${
+                        ativo
+                          ? "border-blue-600 bg-blue-600 text-white shadow-sm"
+                          : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-100"
+                      }`}
+                    >
+                      {f.rotulo}
+                      <span className={`rounded-full px-1.5 text-[10px] ${ativo ? "bg-white/25" : "bg-slate-100 text-slate-500"}`}>
+                        {contagemPerfil[f.valor] ?? 0}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+              <div className="flex items-center gap-3 text-xs text-slate-500">
+                <span>
+                  Mostrando <b className="text-slate-700">{usuariosFiltrados.length}</b> de {usuarios.length}
+                </span>
+                {temFiltroAtivo && (
+                  <button type="button" onClick={limparFiltros}
+                    className="inline-flex items-center gap-1 font-semibold text-blue-600 hover:text-blue-800">
+                    <FilterX className="h-3.5 w-3.5" /> Limpar filtros
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+
           <CardContent className="p-0 h-[600px] overflow-auto">
             <Table>
-              <TableHeader className="bg-slate-50">
+              <TableHeader className="bg-slate-50 sticky top-0 z-10">
                 <TableRow>
                   <TableHead>Nome</TableHead>
                   <TableHead>Matrícula</TableHead>
@@ -177,7 +314,23 @@ export default function GerenciarUsuarios() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {usuarios.map((u) => (
+                {usuariosFiltrados.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={5} className="py-16">
+                      <div className="flex flex-col items-center gap-2 text-center">
+                        <SearchX className="h-8 w-8 text-slate-300" />
+                        <p className="font-medium text-slate-600">Nenhum usuário encontrado</p>
+                        <p className="text-sm text-slate-400">Tente outro nome, matrícula ou limpe os filtros.</p>
+                        {temFiltroAtivo && (
+                          <Button type="button" variant="outline" size="sm" onClick={limparFiltros} className="mt-2">
+                            Limpar filtros
+                          </Button>
+                        )}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                )}
+                {usuariosFiltrados.map((u) => (
                   <TableRow key={u.id}>
                     <TableCell className="font-medium text-slate-700">{formatarNome(u.nome)}</TableCell>
                     <TableCell className="text-slate-500">{u.matricula}</TableCell>
@@ -187,7 +340,7 @@ export default function GerenciarUsuarios() {
                         u.perfil === 'admin' ? 'bg-purple-100 text-purple-700' : 
                         u.perfil === 'tecnico' ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-600'
                       }`}>
-                        {u.perfil.toUpperCase()}
+                        {(u.perfil || '').toUpperCase()}
                       </span>
                     </TableCell>
                     <TableCell className="text-right">
