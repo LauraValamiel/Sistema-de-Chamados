@@ -37,6 +37,7 @@ interface Andamento {
 interface Props {
   chamado: ChamadoModal
   tecnicos: { id: number; nome: string }[]
+  versaoDados?: number // muda quando alguém altera algo; recarrega o histórico
   onFechar: () => void
   onSalvo: (atualizado: ChamadoModal) => void
 }
@@ -75,7 +76,7 @@ function iniciais(nome: string) {
   return ((partes[0]?.[0] ?? "") + (partes.length > 1 ? partes[partes.length - 1][0] : "")).toUpperCase()
 }
 
-export default function ModalChamado({ chamado, tecnicos, onFechar, onSalvo }: Props) {
+export default function ModalChamado({ chamado, tecnicos, versaoDados = 0, onFechar, onSalvo }: Props) {
   const prioridadeOriginal = (chamado.prioridade || "media").toLowerCase()
   const tecnicoOriginal = chamado.id_tecnico ? String(chamado.id_tecnico) : SEM_TECNICO
   const status = infoStatus(chamado.status)
@@ -133,6 +134,11 @@ export default function ModalChamado({ chamado, tecnicos, onFechar, onSalvo }: P
     setCarregandoAndamentos(true)
     carregarAndamentos()
   }, [carregarAndamentos])
+
+  // Outra pessoa alterou algo: atualiza o histórico sem piscar a tela
+  useEffect(() => {
+    if (versaoDados > 0) carregarAndamentos()
+  }, [versaoDados, carregarAndamentos])
 
   const salvar = async () => {
     if (!houveMudanca) return

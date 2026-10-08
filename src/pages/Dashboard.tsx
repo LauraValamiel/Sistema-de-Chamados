@@ -1,5 +1,6 @@
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 import { DragDropContext, Droppable, Draggable, type DropResult } from "@hello-pangea/dnd"
+import { useSincronizacaoChamados } from "@/hooks/useSincronizacaoChamados"
 import { api } from "@/services/api" // Nossa conexão com o FastAPI
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -21,7 +22,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { ArrowUpDown, AlertTriangle, GitPullRequest, Clock3, CheckCircle2, User, CalendarDays, UserPlus, ChevronDown } from "lucide-react"
+import { ArrowUpDown, AlertTriangle, GitPullRequest, Clock3, CheckCircle2, User, CalendarDays, UserPlus, ChevronDown, WifiOff } from "lucide-react"
 import { formatarNome } from "@/lib/utils"  
 
 // Tipagem do Chamado (Agora adaptada para o que deve vir do banco)
@@ -69,14 +70,32 @@ export default function Dashboard() {
   const [chamadoSelecionado, setChamadoSelecionado] = useState<ChamadoKanban | null>(null);
   const fecharModal = useCallback(() => setChamadoSelecionado(null), []);
 
+  // Atualização automática: o que outra pessoa fizer aparece sem recarregar a página
+  const arrastando = useRef(false);
+  const atualizacaoPendente = useRef(false);
+  const [versaoDados, setVersaoDados] = useState(0);
+
+  const { ultimaSincronizacao, conectado } = useSincronizacaoChamados(() => {
+    // Não mexe no quadro no meio de um "arrastar e soltar"
+    if (arrastando.current) {
+      atualizacaoPendente.current = true;
+      return;
+    }
+    carregarChamados(true);
+    setVersaoDados((v) => v + 1);
+  });
+
   // Busca os dados reais do FastAPI quando a tela abre
   useEffect(() => {
     carregarChamados();
     carregarTecnicos();
   }, []);
 
+  // Quando o sino avisa de um chamado novo, atualiza na hora
   useEffect(() => {
-    const aoChegarChamado = () => carregarChamados(true);
+    const aoChegarChamado = () => {
+      if (!arrastando.current) carregarChamados(true);
+    };
     window.addEventListener("novo-chamado", aoChegarChamado);
     return () => window.removeEventListener("novo-chamado", aoChegarChamado);
   }, [sortBy]);
@@ -170,6 +189,10 @@ export default function Dashboard() {
       // Força a ordenação inicial
       aplicarOrdenacao(novasColunas, sortBy);
 
+      // Se um chamado estiver aberto no modal, atualiza os dados dele também
+      const todos: ChamadoKanban[] = Object.values(novasColunas as ColunasType).flatMap((c) => c.items);
+      setChamadoSelecionado((atual) => (atual ? todos.find((c) => c.id === atual.id) ?? atual : atual));
+
     } catch (error) {
       console.error("Erro ao buscar dados reais do backend:", error);
       // Se der erro de conexão, mantém um aviso no console mas o quadro fica vazio
@@ -237,7 +260,17 @@ export default function Dashboard() {
   }
 
   // Arrastar e Soltar AGORA SALVA NO BANCO!
+  const onDragStart = () => {
+    arrastando.current = true;
+  };
+
   const onDragEnd = async (result: DropResult) => {
+    arrastando.current = false;
+    // Se chegou alguma mudança de outra pessoa durante o arraste, aplica agora
+    if (atualizacaoPendente.current) {
+      atualizacaoPendente.current = false;
+      setTimeout(() => carregarChamados(true), 800);
+    }
     if (!result.destination) return;
     
     const { source, destination } = result;
@@ -303,6 +336,25 @@ export default function Dashboard() {
         <div className="dashboard-title-wrap">
           <h2 className="dashboard-title">Dashboard</h2>
           <p className="dashboard-subtitle">Visão geral dos chamados do departamento de TI</p>
+          {conectado ? (
+            <span className="mt-2 inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-0.5 text-xs font-medium text-emerald-700"
+              title="O quadro se atualiza sozinho quando alguém faz uma alteração">
+              <span className="relative flex h-2 w-2">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+              </span>
+              Ao vivo
+              {ultimaSincronizacao && (
+                <span className="text-emerald-600/70">
+                  · {ultimaSincronizacao.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
+                </span>
+              )}
+            </span>
+          ) : (
+            <span className="mt-2 inline-flex items-center gap-2 rounded-full border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-xs font-medium text-amber-700">
+              <WifiOff className="h-3 w-3" /> Sem conexão · tentando novamente
+            </span>
+          )}
         </div>
         <div className="dashboard-toggle-wrap">
             <Button className={`dashboard-toggle-btn ${activeView === 'kanban' ? 'active' : 'inactive'}`} onClick={() => setActiveView('kanban')}>
@@ -386,7 +438,7 @@ export default function Dashboard() {
         </div>
       ) : activeView === 'kanban' ? (
         <div className="kanban-wrapper">
-          <DragDropContext onDragEnd={onDragEnd}>
+          <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
             <div className="kanban-board">
               {Object.entries(colunas).map(([idColuna, coluna]) => (
                 <div key={idColuna} className="kanban-column">
@@ -523,6 +575,7 @@ export default function Dashboard() {
         <ModalChamado
           chamado={chamadoSelecionado}
           tecnicos={tecnicos}
+          versaoDados={versaoDados}
           onFechar={fecharModal}
           onSalvo={(atualizado) => {
             setChamadoSelecionado({ ...chamadoSelecionado, ...atualizado } as ChamadoKanban);

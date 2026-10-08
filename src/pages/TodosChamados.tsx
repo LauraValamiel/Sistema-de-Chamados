@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react"
 import { api } from "@/services/api"
+import { useSincronizacaoChamados } from "@/hooks/useSincronizacaoChamados"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
@@ -30,13 +31,17 @@ export default function TodosChamados() {
   const [statusFiltro, setStatusFiltro] = useState("todos")
   const [prioridadeFiltro, setPrioridadeFiltro] = useState("todas")
 
+  const carregar = () => api.get("/chamados/").then((res) => setChamados(res.data)).catch(() => {})
+
   useEffect(() => {
-    const carregar = () => api.get("/chamados/").then((res) => setChamados(res.data)).catch(() => {})
     carregar()
-    // Atualiza a lista sozinha quando chega um chamado novo
+    // Atualiza a lista na hora quando o sino avisa de um chamado novo
     window.addEventListener("novo-chamado", carregar)
     return () => window.removeEventListener("novo-chamado", carregar)
   }, [])
+
+  // Atualiza sozinha quando alguém altera qualquer chamado
+  useSincronizacaoChamados(carregar)
 
   // Lógica de Filtro combinada
   const chamadosFiltrados = chamados.filter((c) => {
