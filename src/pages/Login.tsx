@@ -4,12 +4,19 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { CheckCircle2, Circle, Eye, EyeOff, Loader2 } from "lucide-react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 import "./Login.css"
 import logo from "/public/logotipobvm.png"
 import { api } from "@/services/api";
+
+/* ===== CADASTRO PELA TELA DE LOGIN (DESATIVADO) =====
+   Para reativar: descomente os blocos marcados com "CADASTRO" neste arquivo
+   e a rota "/cadastro/" no main.py do backend.
+
+import { CheckCircle2, Circle } from "lucide-react";
 import SelectSetor from "@/components/SelectSetor";
 import { setorOficial } from "@/lib/setores";
+===================================================== */
 
 // Troca obrigatória da senha padrão (Mudar123) no primeiro acesso.
 // Desativada durante os testes: mude para true para voltar a exigir.
@@ -47,7 +54,6 @@ function CampoSenha({ id, value, onChange, placeholder, autoComplete }: {
 
 export default function Login() {
     const navigate = useNavigate();
-    const [modo, setModo] = useState<"entrar" | "cadastrar">("entrar");
     const [erro, setErro] = useState("");
     const [enviando, setEnviando] = useState(false);
 
@@ -55,7 +61,8 @@ export default function Login() {
     const [matricula, setMatricula] = useState("");
     const [senha, setSenha] = useState("");
 
-    // Criar conta
+    /* ===== CADASTRO (DESATIVADO) =====
+    const [modo, setModo] = useState<"entrar" | "cadastrar">("entrar");
     const [cadMatricula, setCadMatricula] = useState("");
     const [cadSetor, setCadSetor] = useState("");
     const [cadSenha, setCadSenha] = useState("");
@@ -65,6 +72,7 @@ export default function Login() {
       setModo(novo);
       setErro("");
     };
+    ================================== */
 
     const entrarNoSistema = (usuarioLogado: any, senhaDigitada: string) => {
       // Quem entrou com a senha padrão precisa criar uma senha pessoal
@@ -103,6 +111,7 @@ export default function Login() {
         }
     }
 
+    /* ===== CADASTRO (DESATIVADO) =====
     // Regras do cadastro
     const regras = {
       matricula: /^\d+$/.test(cadMatricula.trim()),
@@ -139,6 +148,7 @@ export default function Login() {
           setEnviando(false);
         }
     }
+    ================================== */
 
     return (
     <div className="login-container">
@@ -155,7 +165,7 @@ export default function Login() {
           </CardDescription>
         </CardHeader>
 
-        {/* Abas: Entrar / Criar conta */}
+        {/* ===== CADASTRO (DESATIVADO): abas Entrar / Criar conta =====
         <div className="mx-6 mb-2 grid grid-cols-2 rounded-lg bg-slate-100 p-1 text-sm font-semibold">
           <button type="button" onClick={() => trocarModo("entrar")}
             className={`rounded-md py-2 transition ${modo === "entrar" ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700"}`}>
@@ -166,100 +176,106 @@ export default function Login() {
             Criar conta
           </button>
         </div>
+        ============================================================= */}
 
-        {modo === "entrar" ? (
-          <form onSubmit={handleLogin}>
-            <CardContent className="login-content">
-              {erro && <div className="text-red-500 text-sm font-semibold mb-2">{erro}</div>}
+        <form onSubmit={handleLogin}>
+          <CardContent className="login-content">
+            {erro && <div className="text-red-500 text-sm font-semibold mb-2">{erro}</div>}
 
-              <div className="login-field">
-                <Label htmlFor="matricula" className="login-label">Matrícula</Label>
-                <Input
-                  id="matricula"
-                  type="text"
-                  inputMode="numeric"
-                  placeholder="Ex: 12345"
-                  required
-                  value={matricula}
-                  onChange={(e) => setMatricula(e.target.value)}
-                  className="bg-white"
-                  autoComplete="username"
-                />
-              </div>
-              <div className="login-field">
-                <Label htmlFor="password" className="login-label">Senha</Label>
-                <CampoSenha id="password" value={senha} onChange={setSenha} autoComplete="current-password" />
-              </div>
-            </CardContent>
-            <CardFooter className="login-footer flex-col gap-3">
-              <Button type="submit" className="login-btn" disabled={enviando}>
-                {enviando ? <><Loader2 className="h-4 w-4 animate-spin" /> Entrando...</> : "Entrar no Sistema"}
-              </Button>
-              <p className="text-center text-xs text-slate-500">
-                Ainda não tem acesso?{" "}
-                <button type="button" onClick={() => trocarModo("cadastrar")} className="font-semibold text-blue-600 hover:underline">
-                  Crie sua conta
-                </button>
-              </p>
-            </CardFooter>
-          </form>
-        ) : (
-          <form onSubmit={handleCadastro}>
-            <CardContent className="login-content">
-              {erro && <div className="text-red-500 text-sm font-semibold mb-2">{erro}</div>}
+            <div className="login-field">
+              <Label htmlFor="matricula" className="login-label">Matrícula</Label>
+              <Input
+                id="matricula"
+                type="text"
+                inputMode="numeric"
+                placeholder="Ex: 12345"
+                required
+                value={matricula}
+                onChange={(e) => setMatricula(e.target.value)}
+                className="bg-white"
+                autoComplete="username"
+              />
+            </div>
+            <div className="login-field">
+              <Label htmlFor="password" className="login-label">Senha</Label>
+              <CampoSenha id="password" value={senha} onChange={setSenha} autoComplete="current-password" />
+            </div>
+          </CardContent>
+          <CardFooter className="login-footer flex-col gap-3">
+            <Button type="submit" className="login-btn" disabled={enviando}>
+              {enviando ? <><Loader2 className="h-4 w-4 animate-spin" /> Entrando...</> : "Entrar no Sistema"}
+            </Button>
+            <p className="text-center text-xs text-slate-500">
+              Não tem acesso ou esqueceu a senha? Procure o setor de TI.
+            </p>
+            {/* ===== CADASTRO (DESATIVADO): link "Crie sua conta" =====
+            <p className="text-center text-xs text-slate-500">
+              Ainda não tem acesso?{" "}
+              <button type="button" onClick={() => trocarModo("cadastrar")} className="font-semibold text-blue-600 hover:underline">
+                Crie sua conta
+              </button>
+            </p>
+            ========================================================== */}
+          </CardFooter>
+        </form>
 
-              <div className="login-field">
-                <Label htmlFor="cad-matricula" className="login-label">Matrícula</Label>
-                <Input
-                  id="cad-matricula"
-                  inputMode="numeric"
-                  placeholder="Sua matrícula na prefeitura"
-                  required
-                  value={cadMatricula}
-                  onChange={(e) => setCadMatricula(e.target.value)}
-                  className="bg-white"
-                  autoComplete="username"
-                />
-              </div>
-              <div className="login-field">
-                <Label htmlFor="cad-setor" className="login-label">Setor</Label>
-                <SelectSetor id="cad-setor" value={cadSetor} onChange={setCadSetor} />
-              </div>
-              <div className="login-field">
-                <Label htmlFor="cad-senha" className="login-label">Senha</Label>
-                <CampoSenha id="cad-senha" value={cadSenha} onChange={setCadSenha} placeholder="Crie uma senha" autoComplete="new-password" />
-              </div>
-              <div className="login-field">
-                <Label htmlFor="cad-confirmar" className="login-label">Confirmar senha</Label>
-                <CampoSenha id="cad-confirmar" value={cadConfirmacao} onChange={setCadConfirmacao} placeholder="Repita a senha" autoComplete="new-password" />
-              </div>
+        {/* ===== CADASTRO (DESATIVADO): formulário "Criar conta" =====
+        <form onSubmit={handleCadastro}>
+          <CardContent className="login-content">
+            {erro && <div className="text-red-500 text-sm font-semibold mb-2">{erro}</div>}
 
-              <ul className="space-y-1 rounded-lg border border-slate-100 bg-slate-50 p-3 text-xs">
-                {[
-                  { ok: regras.matricula, texto: "Matrícula só com números" },
-                  { ok: regras.senha, texto: "Senha com pelo menos 6 caracteres" },
-                  { ok: regras.confere, texto: "As duas senhas são iguais" },
-                ].map((r) => (
-                  <li key={r.texto} className={`flex items-center gap-2 ${r.ok ? "text-emerald-600" : "text-slate-500"}`}>
-                    {r.ok ? <CheckCircle2 className="h-3.5 w-3.5" /> : <Circle className="h-3.5 w-3.5" />}
-                    {r.texto}
-                  </li>
-                ))}
-              </ul>
-            </CardContent>
-            <CardFooter className="login-footer flex-col gap-3">
-              <Button type="submit" className="login-btn" disabled={!podeCadastrar || enviando}>
-                {enviando ? <><Loader2 className="h-4 w-4 animate-spin" /> Criando conta...</> : "Criar conta"}
-              </Button>
-              <p className="text-center text-xs text-slate-500">
-                Já tem acesso?{" "}
-                <button type="button" onClick={() => trocarModo("entrar")} className="font-semibold text-blue-600 hover:underline">
-                  Entrar
-                </button>
-              </p>
-            </CardFooter>
-          </form>
-        )}
+            <div className="login-field">
+              <Label htmlFor="cad-matricula" className="login-label">Matrícula</Label>
+              <Input
+                id="cad-matricula"
+                inputMode="numeric"
+                placeholder="Sua matrícula na prefeitura"
+                required
+                value={cadMatricula}
+                onChange={(e) => setCadMatricula(e.target.value)}
+                className="bg-white"
+                autoComplete="username"
+              />
+            </div>
+            <div className="login-field">
+              <Label htmlFor="cad-setor" className="login-label">Setor</Label>
+              <SelectSetor id="cad-setor" value={cadSetor} onChange={setCadSetor} />
+            </div>
+            <div className="login-field">
+              <Label htmlFor="cad-senha" className="login-label">Senha</Label>
+              <CampoSenha id="cad-senha" value={cadSenha} onChange={setCadSenha} placeholder="Crie uma senha" autoComplete="new-password" />
+            </div>
+            <div className="login-field">
+              <Label htmlFor="cad-confirmar" className="login-label">Confirmar senha</Label>
+              <CampoSenha id="cad-confirmar" value={cadConfirmacao} onChange={setCadConfirmacao} placeholder="Repita a senha" autoComplete="new-password" />
+            </div>
+
+            <ul className="space-y-1 rounded-lg border border-slate-100 bg-slate-50 p-3 text-xs">
+              {[
+                { ok: regras.matricula, texto: "Matrícula só com números" },
+                { ok: regras.senha, texto: "Senha com pelo menos 6 caracteres" },
+                { ok: regras.confere, texto: "As duas senhas são iguais" },
+              ].map((r) => (
+                <li key={r.texto} className={`flex items-center gap-2 ${r.ok ? "text-emerald-600" : "text-slate-500"}`}>
+                  {r.ok ? <CheckCircle2 className="h-3.5 w-3.5" /> : <Circle className="h-3.5 w-3.5" />}
+                  {r.texto}
+                </li>
+              ))}
+            </ul>
+          </CardContent>
+          <CardFooter className="login-footer flex-col gap-3">
+            <Button type="submit" className="login-btn" disabled={!podeCadastrar || enviando}>
+              {enviando ? <><Loader2 className="h-4 w-4 animate-spin" /> Criando conta...</> : "Criar conta"}
+            </Button>
+            <p className="text-center text-xs text-slate-500">
+              Já tem acesso?{" "}
+              <button type="button" onClick={() => trocarModo("entrar")} className="font-semibold text-blue-600 hover:underline">
+                Entrar
+              </button>
+            </p>
+          </CardFooter>
+        </form>
+        ============================================================ */}
       </Card>
     </div>
   )
